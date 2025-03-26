@@ -1,0 +1,28 @@
+body{
+	padding: 20px 0px;
+}
+form{
+    margin: auto;
+}
+.auth{
+	border-radius: 10px;
+	border: 2px solid black;
+	width: 20%;
+	min-width: 300px;
+    text-align: center;
+    margin: auto;
+}
+input{	
+    height: 30px;
+    width: 90%;
+    margin-top: 20px;
+}
+button{
+	width: 50%;
+    margin-top: 20px;
+    height: 30px;
+}
+.link{
+	margin-top: 10px;
+	height: 30px;
+}
