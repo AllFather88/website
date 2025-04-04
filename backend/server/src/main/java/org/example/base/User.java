@@ -9,7 +9,7 @@ import org.hibernate.annotations.GenericGenerator;
 @Getter
 @Entity()
 @Table(name = "users")
-public class Users {
+public class User {
     @Id
     @GenericGenerator(name = "generator", strategy = "increment")
     @GeneratedValue(generator = "generator")
@@ -20,10 +20,15 @@ public class Users {
     private String password;
     @Column(name = "role")
     private String role;
-    public Users(){}
-    public Users(String name, String password, String role) {
+    public User(){}
+    public User(String name, String password, String role) {
         this.name = name;
         this.password = password;
         this.role = role;
+    }
+    public void setUser(UserDto a){
+        name = a.getName();
+        role = a.getRole();
+        password = a.getPassword();
     }
 }

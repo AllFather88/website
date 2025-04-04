@@ -6,7 +6,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface UsersRepository extends JpaRepository<Users,Integer>{
-    List<Users> findByName(String x);
+public interface UsersRepository extends JpaRepository<User,Integer>{
+    List<User> findUsersByName(String x);
+    User findByName(String x);
 }
 

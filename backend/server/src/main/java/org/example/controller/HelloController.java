@@ -1,17 +1,44 @@
 package org.example.controller;
 
-import org.example.base.Users;
+import org.example.base.User;
+import org.example.base.UserDto;
 import org.example.base.UsersRepository;
+import org.example.service.JWT.JwtDTO;
+import org.example.service.JWT.JwtService;
+import org.example.service.authorization.Hash;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/account")
+class RegistrationAndLogin {
+    @Autowired
+    private UsersRepository users;
+    @PostMapping("/login")
+    JwtDTO Login(@RequestBody UserDto user) {
+        if(user == null){
+            JwtDTO x =  new JwtDTO();
+            x.setToken("ssss");
+            x.setRefreshtoken("ssss");
+            return x;
+        }
+        user.setPassword(Hash.hashPassword(user.getPassword()));
+        User a = users.findByName(user.getName());
+        JwtDTO response = new JwtDTO();
+        if(a.getPassword().equals(user.getPassword())){
+            response.setToken(JwtService.generateJWT(a.getName(),a.getRole()));
+            response.setRefreshtoken(JwtService.generateRefreshJWT(a.getName()));
+        }
+        return response;
+    }
+}
+
+@RestController
+@RequestMapping("/public")
 class HelloController {
     @GetMapping("/hello")
     public String sayHello() {
@@ -27,9 +54,9 @@ class Hello {
     @GetMapping("*")
     public List<String> sayHello() {
 
-        Users us = new Users("mark","aaaa","admin");
-        if(users.findByName("mark").isEmpty()){
-            us = new Users("mark","aaaa","admin");
+        User us = new User("mark","aaaa","admin");
+        if(users.findUsersByName("mark").isEmpty()){
+            us = new User("mark","aaaa","admin");
         }
         if(us != null) {
             users.save(us);

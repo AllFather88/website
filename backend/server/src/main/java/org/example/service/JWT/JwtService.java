@@ -1,15 +1,86 @@
 package org.example.service.JWT;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import javax.crypto.SecretKey;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 @Service
 public class JwtService {
     @Value("5c819f8cc63427b0d9aabfaae0df09edabc198a8051b538df684c38a33b33d2d")
-    private String secret;
+    static private String secret;
 
-    public JWTauthDAO generateAuthToken(){
-        JWTauthDAO token = new JWTauthDAO();
-        token.setToken();
+    static public JwtDTO generateAuthToken(String name, String role){
+        JwtDTO token = new JwtDTO();
+        token.setToken(generateJWT(name,role));
+        token.setRefreshtoken(generateRefreshJWT(name));
+        return token;
+    }
+    static public JwtDTO refreshBaseToken(String name, String role , String refreshToken){
+        JwtDTO token = new JwtDTO();
+        token.setToken(generateJWT(name,role));
+        token.setRefreshtoken(refreshToken);
+        return token;
+
+    }
+    static public boolean validateJWT(String token){
+        try {
+            Jwts.parser()
+                    .verifyWith(getKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            return true;
+        } catch (Exception e) {
+           return false;
+        }
+    }
+    static public Claims extractClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(getKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+    static public boolean rightsСheck(String role,String token){
+        if(!validateJWT(token)){
+            return false;
+        }
+        Claims claims = extractClaims(token);
+        String rl = claims.get("role",String.class);
+        if(rl.equals(role)){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+    static public String generateJWT(String name,String role){
+        Date date = Date.from(LocalDateTime.now().plusMinutes(30).atZone(ZoneId.systemDefault()).toInstant());
+        return Jwts.builder()
+                .subject(name)
+                .claim("role", role)
+                .expiration(date).signWith(getKey())
+                .compact();
+    }
+    static public String generateRefreshJWT(String name){
+        Date date = Date.from(LocalDateTime.now().plusHours(10).atZone(ZoneId.systemDefault()).toInstant());
+        return Jwts.builder()
+                .subject(name)
+                .expiration(date).signWith(getKey())
+                .compact();
+    }
+    @NonNull
+    static private SecretKey getKey(){
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

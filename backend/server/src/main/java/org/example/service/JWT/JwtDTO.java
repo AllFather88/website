@@ -3,7 +3,7 @@ package org.example.service.JWT;
 import lombok.Data;
 
 @Data
-public class JWTauthDAO {
+public class JwtDTO {
     private String token;
     private String refreshtoken;
 
