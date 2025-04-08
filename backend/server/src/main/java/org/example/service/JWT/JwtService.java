@@ -15,8 +15,7 @@ import java.util.Date;
 
 @Service
 public class JwtService {
-    @Value("5c819f8cc63427b0d9aabfaae0df09edabc198a8051b538df684c38a33b33d2d")
-    static private String secret;
+    static private String secret = "5c819f8cc63427b0d9aabfaae0df09edabc198a8051b538df684c38a33b33d2d";
 
     static public JwtDTO generateAuthToken(String name, String role){
         JwtDTO token = new JwtDTO();
@@ -65,6 +64,9 @@ public class JwtService {
     }
     static public String generateJWT(String name,String role){
         Date date = Date.from(LocalDateTime.now().plusMinutes(30).atZone(ZoneId.systemDefault()).toInstant());
+        System.out.println("11111111111111111111");
+        System.out.println(name);
+        System.out.println(role);
         return Jwts.builder()
                 .subject(name)
                 .claim("role", role)
@@ -80,7 +82,9 @@ public class JwtService {
     }
     @NonNull
     static private SecretKey getKey(){
+        System.out.println("222222222222");
         byte[] keyBytes = Decoders.BASE64.decode(secret);
+        System.out.println("0000000000000000000");
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

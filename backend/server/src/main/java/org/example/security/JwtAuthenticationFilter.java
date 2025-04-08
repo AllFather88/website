@@ -10,6 +10,11 @@ import java.io.IOException;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        // Пропускаем запросы, которые начинаются с /public/
+        return request.getRequestURI().startsWith("/public/");
+    }
+    @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain chain)
