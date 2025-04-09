@@ -7,17 +7,13 @@ export default  function Register(){
         <div className={styles.auth}>
         <h1>Регистрация</h1>
         <form>
-           <div><input className="login"  type="text"></input></div> 
-           <div><input className="password" type="text"></input></div> 
-           <div><input className="password" type="text"></input></div> 
-           <button>Зарегистрироваться</button>
+           <div><input className={styles.login}  type="text"  placeholder="name"></input></div> 
+           <div><input className={styles.password}  type="password"  placeholder="password"></input></div> 
+           <div><input className={styles.password} type="password" placeholder="repeat password"></input></div> 
+           <button className={styles.btn}>Зарегистрироваться</button>
         </form>
-        <div className="link">Уже есть акаунт<a href="http://localhost:3000/auth"> Войти</a></div>
+        <div className={styles.link}>Уже есть акаунт<a href="http://localhost:3000/auth"> Войти</a></div>
         </div>
-        
-
-        
-      
         </>
     )
 }

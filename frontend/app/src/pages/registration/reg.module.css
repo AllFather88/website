@@ -11,18 +11,20 @@ form{
 	min-width: 300px;
     text-align: center;
     margin: auto;
-    background-color: brown;
 }
-input{	
+.login,.password{
     height: 30px;
     width: 90%;
     margin-top: 20px;
 }
-button{
-    width: 100%;
+.btn{
+    color:white;
+    background-color:#00cb00;
+    border-radius: 5px;
+    border: 0;
+	width: 50%;
     margin-top: 20px;
     height: 30px;
-
 }
 .link{
 	margin-top: 10px;
