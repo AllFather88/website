@@ -20,7 +20,7 @@ public class JwtService {
     static public JwtDTO generateAuthToken(String name, String role){
         JwtDTO token = new JwtDTO();
         token.setToken(generateJWT(name,role));
-        token.setRefreshtoken(generateRefreshJWT(name));
+        token.setRefreshtoken(generateRefreshJWT(name,role));
         return token;
     }
     static public JwtDTO refreshBaseToken(String name, String role , String refreshToken){
@@ -64,27 +64,23 @@ public class JwtService {
     }
     static public String generateJWT(String name,String role){
         Date date = Date.from(LocalDateTime.now().plusMinutes(30).atZone(ZoneId.systemDefault()).toInstant());
-        System.out.println("11111111111111111111");
-        System.out.println(name);
-        System.out.println(role);
         return Jwts.builder()
                 .subject(name)
                 .claim("role", role)
                 .expiration(date).signWith(getKey())
                 .compact();
     }
-    static public String generateRefreshJWT(String name){
+    static public String generateRefreshJWT(String name,String role){
         Date date = Date.from(LocalDateTime.now().plusHours(10).atZone(ZoneId.systemDefault()).toInstant());
         return Jwts.builder()
                 .subject(name)
+                .claim("role", role)
                 .expiration(date).signWith(getKey())
                 .compact();
     }
     @NonNull
     static private SecretKey getKey(){
-        System.out.println("222222222222");
         byte[] keyBytes = Decoders.BASE64.decode(secret);
-        System.out.println("0000000000000000000");
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

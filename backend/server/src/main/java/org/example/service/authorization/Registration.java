@@ -9,21 +9,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class Login {
+public class Registration {
     @Autowired
     private UsersRepository users;
     public JwtDTO getTokens(UserDto user){
+        JwtDTO response = new JwtDTO();
         user.setPassword(Hash.hashPassword(user.getPassword()));
         User a = users.findByName(user.getName());
-        JwtDTO response = new JwtDTO();
-        if(a.getPassword().equals(user.getPassword())){
-            response.setToken(JwtService.generateJWT(a.getName(),a.getRole()));
-            response.setRefreshtoken(JwtService.generateRefreshJWT(a.getName(),a.getRole()));
+        if(a == null){
+            a.setPassword(user.getPassword());
+            a.setName(user.getName());
+            a.setRole("user");
+             users.save(a);
         }
-        else{
+        else {
             response.setToken("error");
-            response.setRefreshtoken("Неверен логин или пароль");
+            response.setRefreshtoken("Пользователь с таким именем уже есть!");
         }
+        response.setToken(JwtService.generateJWT(a.getName(),a.getRole()));
+        response.setRefreshtoken(JwtService.generateRefreshJWT(a.getName(),a.getRole()));
         return response;
     }
 }
