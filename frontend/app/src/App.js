@@ -14,10 +14,11 @@ export const App = () => (
   	<BrowserRouter forceRefresh={true}>
 		<main>
 			<Routes>
+				<Route path="/*" element={<NotFound/>}/>
         		<Route path="/reg" element={<Register />} />
 				<Route path="/auth" element={<Auth />} />
 				<Route path="/" element={<Main/>}/>
-				<Route path="/*" element={<NotFound/>}/>
+				
       		</Routes>
 
 		</main>

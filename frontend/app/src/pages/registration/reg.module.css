@@ -1,7 +1,4 @@
-body{
-	padding: 20px 0px;
-}
-form{
+.form{
     margin: auto;
 }
 .auth{
@@ -11,6 +8,7 @@ form{
 	min-width: 300px;
     text-align: center;
     margin: auto;
+    margin-top: 20px;
 }
 .login,.password{
     height: 30px;
@@ -30,3 +28,14 @@ form{
 	margin-top: 10px;
 	height: 30px;
 }
+.message{
+    border-radius: 5px;
+    margin: auto;
+    width: 85%;
+    padding: 2.5%; 
+    min-height: 30px;
+    border: 2px solid #ff00007a; 
+    background-color: #ff000020;
+    margin-bottom: 5%;
+    word-break: break-all;
+ }
