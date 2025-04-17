@@ -17,6 +17,7 @@ public class Registration {
         user.setPassword(Hash.hashPassword(user.getPassword()));
         User a = users.findByName(user.getName());
         if(a == null){
+            a = new User();
             a.setPassword(user.getPassword());
             a.setName(user.getName());
             a.setRole("user");

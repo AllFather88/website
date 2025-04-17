@@ -28,7 +28,6 @@ public class JwtService {
         token.setToken(generateJWT(name,role));
         token.setRefreshtoken(refreshToken);
         return token;
-
     }
     static public boolean validateJWT(String token){
         try {

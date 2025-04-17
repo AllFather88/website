@@ -16,7 +16,7 @@ public class Login {
         user.setPassword(Hash.hashPassword(user.getPassword()));
         User a = users.findByName(user.getName());
         JwtDTO response = new JwtDTO();
-        if(a.getPassword().equals(user.getPassword())){
+        if(a != null &&  a.getPassword().equals(user.getPassword())){
             response.setToken(JwtService.generateJWT(a.getName(),a.getRole()));
             response.setRefreshtoken(JwtService.generateRefreshJWT(a.getName(),a.getRole()));
         }
