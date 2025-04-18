@@ -26,14 +26,14 @@ export default  function Register(){
             body: JSON.stringify(userData),
         });
         const data = await response.json();
-        console.log(data)
+        console.log(JSON.stringify(data))
         if (response.ok) {
            if(data.token === "error"){
-                setMessage(data.refreshToken);
+                setMessage(data.tokens.refreshToken);
            }
            else{
-				sessionStorage.setItem("tokens",JSON.stringify())
-				navigate('/main')
+				sessionStorage.setItem("user",JSON.stringify(data))
+				navigate('/')
            }
         } else {
             alert("Ошибка авторизации");

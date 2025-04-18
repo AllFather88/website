@@ -1,0 +1,16 @@
+.add{
+    margin: auto;
+    width: 50%;
+}
+.add > input{
+    display: block;
+    
+    margin: auto;
+    margin-top: 10px;
+    width: 100%;
+}
+.add > textarea{
+    margin-top: 10px;
+    width: 100%;
+    resize: none;
+}

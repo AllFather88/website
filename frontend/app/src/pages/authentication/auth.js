@@ -24,11 +24,11 @@ export default  function Auth(){
         const data = await response.json();
 		console.log(JSON.stringify(data))
         if (response.ok) {
-           if(data.token === "error"){
-                setMessage(data.refreshtoken);
+           if(data.tokens.token === "error"){
+                setMessage(data.tokens.refreshtoken);
            }
            else{
-				sessionStorage.setItem("tokens",JSON.stringify())
+				sessionStorage.setItem("user",JSON.stringify(data))
 				navigate("/");
            }
         } else {

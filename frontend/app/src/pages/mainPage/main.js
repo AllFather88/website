@@ -1,47 +1,52 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./main.module.css"
 import "../test.css"
+import Notifications from "./modules/notifications.js";
+import Cars from "./modules/cars.js";
+import Add from "./modules/add.js";
+
 export default function Main(){
-    const Clean = (id)=>{
-        const element = document.getElementById(id);
-        if(element){
-            element.value = '';
+    const [menu,setMenu] = useState("cars");
+    const [admin,setAdmin] = useState('admin');
+    const [user,setUser] = useState({});
+    const Menu = ()=>{
+        const AdminMenu = ()=>{
+            return(
+                
+                user.role === "admin" && (<><button onClick={()=>setMenu("add")}>Добавить лот</button>
+                <button>Управление правами</button></>)
+                
+            )
         }
+        return(
+            user && (<div className={styles.menu}>
+                <AdminMenu/>
+                <button onClick={()=>setMenu("notifications")}>Уведомления</button>
+                <button>Ставки</button>
+                <button onClick={()=>setMenu("cars")}>Лоты</button>
+                <button>Настройки</button>
+            </div>)
+        )
     }
+    useEffect(()=>{
+        const storedUser = sessionStorage.getItem("user");
+        setUser(storedUser ? JSON.parse(storedUser) : null);
+        console.log(JSON.parse(storedUser))
+    },[])
     return(
         <>
        <div className={styles.page}>
        <header className={styles.header}>
         <div className={styles.names}>
         <div className={styles.name}>XXXXXXXX</div>
-        <div className={styles.username}>ddhh</div>
+        <div className={styles.username}>{user && user.name}</div>
         </div>
-        <div className={styles.menu}> </div>
+       `{menu && <Menu/>}
         </header>
         <div className={styles.headersize}></div>
-        <div className={styles.inp}><input id="search" type="text"></input><button onClick={()=>Clean('search')} className={styles.clean}>✕</button ><button className={styles.search}>⌕</button></div> 
-        <div className={styles.all}>
-        <div className={styles.filter}></div>
-        <div className={styles.cars}>
-        <div className={styles.car}></div>
-        <div className={styles.car}></div>
-        <div className={styles.car}></div>
-        <div className={styles.car}></div>
-        <div className={styles.car}></div>
-        <div className={styles.car}></div>
-        <div className={styles.car}></div>
-        <div className={styles.car}></div>
-        <div className={styles.car}></div>
-        <div className={styles.car}></div>
-        <div className={styles.car}></div>
-        <div className={styles.car}></div>
-        <div className={styles.car}></div>
-        <div className={styles.car}></div>
-        <div className={styles.car}></div>
-        </div>
-        </div>
-        <h2><a href="http://localhost:3000/reg">Регистрация</a></h2>
-        <h2><a href="http://localhost:3000/auth">Вход</a></h2>
+        {menu === "notifications" && <Notifications/>}
+        {menu === "cars" &&  <Cars/>}
+        {menu === "add" &&  <Add/>}
         <footer className={styles.footer}>
 
         </footer>
