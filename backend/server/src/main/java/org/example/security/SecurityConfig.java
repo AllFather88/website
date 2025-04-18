@@ -2,6 +2,7 @@ package org.example.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,15 +23,16 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable()) // JWT не требует CSRF-защиты
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Отключаем сессии
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/**").permitAll() // Доступ открыт для всех
-                        .anyRequest().authenticated()) // Остальные требуют аутентификации
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Разрешаем CORS preflight-запросы
+                        .requestMatchers("/public/**").permitAll() // Открытые пути
+                        .requestMatchers("/private/**").authenticated() // Остальные требуют JWT
+                )
                 .addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .formLogin(form -> form.disable())
-                .httpBasic(httpBasic -> httpBasic.disable())
                 .build();
+
     }
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
@@ -38,7 +40,6 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of("*")); // или конкретные домены
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;

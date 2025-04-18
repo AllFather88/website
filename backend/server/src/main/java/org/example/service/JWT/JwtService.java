@@ -11,12 +11,24 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Base64;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 public class JwtService {
-    static private String secret = "5c819f8cc63427b0d9aabfaae0df09edabc198a8051b538df684c38a33b33d2d";
-
+    static private String secret = Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes());
+    static public String getNewToken(String token){
+        String response;
+        if(JwtService.validateJWT(token)){
+            Claims cl = JwtService.extractClaims(token);
+            response = JwtService.generateJWT(cl.get("name",String.class),cl.get("role",String.class));
+        }
+        else{
+            response = "session is over";
+        }
+        return response;
+    }
     static public JwtDTO generateAuthToken(String name, String role){
         JwtDTO token = new JwtDTO();
         token.setToken(generateJWT(name,role));
@@ -42,6 +54,7 @@ public class JwtService {
         }
     }
     static public Claims extractClaims(String token) {
+        System.out.println("ssss");
         return Jwts.parser()
                 .verifyWith(getKey())
                 .build()
