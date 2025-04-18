@@ -1,5 +1,6 @@
 package org.example.service.authorization;
 
+import org.example.base.ReturnUser;
 import org.example.base.User;
 import org.example.base.UserDto;
 import org.example.base.UsersRepository;
@@ -12,17 +13,20 @@ import org.springframework.stereotype.Service;
 public class Login {
     @Autowired
     private UsersRepository users;
-    public JwtDTO getTokens(UserDto user){
+    public ReturnUser getTokens(UserDto user){
         user.setPassword(Hash.hashPassword(user.getPassword()));
         User a = users.findByName(user.getName());
-        JwtDTO response = new JwtDTO();
+        ReturnUser response = new ReturnUser();
         if(a != null &&  a.getPassword().equals(user.getPassword())){
-            response.setToken(JwtService.generateJWT(a.getName(),a.getRole()));
-            response.setRefreshtoken(JwtService.generateRefreshJWT(a.getName(),a.getRole()));
+            response.getTokens().setToken(JwtService.generateJWT(a.getName(),a.getRole()));
+            response.getTokens().setRefreshtoken(JwtService.generateRefreshJWT(a.getName(),a.getRole()));
+            response.setName(a.getName());
+            response.setRole(a.getRole());
+
         }
         else{
-            response.setToken("error");
-            response.setRefreshtoken("Неверен логин или пароль");
+            response.getTokens().setToken("error");
+            response.getTokens().setRefreshtoken("Неверен логин или пароль");
         }
         return response;
     }
