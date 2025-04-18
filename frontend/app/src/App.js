@@ -17,10 +17,8 @@ export const App = () => (
 				<Route path="/*" element={<NotFound/>}/>
         		<Route path="/reg" element={<Register />} />
 				<Route path="/auth" element={<Auth />} />
-				<Route path="/" element={<Main/>}/>
-				
+				<Route path="/" element={<Main/>}/>		
       		</Routes>
-
 		</main>
   </BrowserRouter>
 );

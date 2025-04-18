@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import styles from "./add.module.css"
 import { useEffect } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 
 export default function Add(){
+    const navigate = useNavigate()
     const handleSubmit = async (event) => {
         event.preventDefault(); 
         const formData = new FormData(event.target);
@@ -12,20 +14,42 @@ export default function Add(){
         formObject[key] = value;
     });
         console.log(JSON.stringify(formObject))
-        try {
-            const response = await fetch("http://localhost:8080/public/x", { 
-                method: "POST",
-                body: formData,
-            });
+        
             
-            if (!response.ok) {
-                throw new Error("Ошибка отправки данных");
-            }
-            const result = await response.json();
-            console.log("Ответ сервера:", result);
-        } catch (error) {
-            console.error("Ошибка:", error);
-        }
+            while(true){
+                const storedUser = sessionStorage.getItem("user");
+                const user = JSON.parse(storedUser);
+                try{
+                    const response = await fetch("http://localhost:8080/private/addlot", { 
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "Authorization": "Token "+ user.tokens.token,  // Авторизация
+                        }
+                    });
+                }catch(error){
+                    console.log("dddddd")
+                    try{
+                        const token = await fetch("http://localhost:8080/public/newtoken", { 
+                            method: "GET",
+                            body: user.tokens.token.refreshtoken,
+                        });
+                        const x =await token.json();
+                        console.log(JSON.stringify(x))
+                        user.tokens.token.token = await token.json()
+                        sessionStorage.setItem("user",JSON.stringify(user))
+                    }catch(e){
+                        sessionStorage.removeItem("user")
+                        navigate("/auth")
+                    }
+                   
+                   
+    
+                    }
+                }
+            
+         
+      
     };
     const [date, setDate] = useState("");
 

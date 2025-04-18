@@ -44,8 +44,8 @@ export default  function Register(){
         <div className={styles.auth}>
         <h1>Регистрация</h1>
         <form className={styles.form} onSubmit={handleSubmit}>
-           <div><input className={styles.login} required  name="name"  type="text"  placeholder="name"></input></div> 
-           <div><input className={styles.password} required pattern=".{6,}" name="password" type="password"  placeholder="password"></input></div> 
+           <div><input className={styles.login} required  name="name" pattern="[A-Za-z]{3,}" type="text"  placeholder="name"></input></div> 
+           <div><input className={styles.password} required pattern="{6,}" name="password" type="password"  placeholder="password"></input></div> 
            <div><input className={styles.password} required name="repeatPassword" type="password" placeholder="repeat password"></input></div> 
            <button className={styles.btn}>Зарегистрироваться</button>
         </form>
