@@ -18,6 +18,7 @@ export default  function Register(){
             return;
         }
         console.log(JSON.stringify(userData))
+       try{
         const response = await fetch("http://localhost:8080/public/registration", {
             method: "POST",
             headers: {
@@ -38,6 +39,10 @@ export default  function Register(){
         } else {
             alert("Ошибка авторизации");
         }
+       }catch(error){
+            setMessage("Не удалось соединится с сервером");
+       }
+
     };
     return(
         <>

@@ -14,25 +14,28 @@ export default  function Auth(){
             name: formData.get("name"),
             password: formData.get("password"),
         };
-        const response = await fetch("http://localhost:8080/public/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(userData),
-        });
-        const data = await response.json();
-		console.log(JSON.stringify(data))
-        if (response.ok) {
-           if(data.tokens.token === "error"){
-                setMessage(data.tokens.refreshtoken);
-           }
-           else{
-				sessionStorage.setItem("user",JSON.stringify(data))
-				navigate("/");
-           }
-        } else {
-            alert("Ошибка авторизации");
+        try{
+            const response = await fetch("http://localhost:8080/public/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(userData),
+            });
+            const data = await response.json();
+            if (response.ok) {
+               if(data.tokens.token === "error"){
+                    setMessage(data.tokens.refreshtoken);
+               }
+               else{
+                    sessionStorage.setItem("user",JSON.stringify(data))
+                    navigate("/");
+               }
+            } else {
+                alert("Ошибка авторизации");
+            }
+        }catch(error){
+            setMessage("Не удалось соединится с сервером");
         }
     };
     return(

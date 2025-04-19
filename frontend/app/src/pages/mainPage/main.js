@@ -8,7 +8,6 @@ import Add from "./modules/add.js";
 
 export default function Main(){
     const [menu,setMenu] = useState("cars");
-    const [admin,setAdmin] = useState('admin');
     const [user,setUser] = useState({});
     const navigate = useNavigate();
     const Menu = ()=>{
@@ -41,7 +40,7 @@ export default function Main(){
         <div className={styles.name}>XXXXXXXX</div>
         <div className={styles.username}>{user ?<><button onClick={()=>{sessionStorage.removeItem("user");setUser(null)}}>Кнопка</button>{user.name}</>  : <button onClick={()=>{navigate("/auth")}}>Войти</button>}</div>
         </div>
-       `{menu && <Menu/>}
+       `{user && <Menu/>}
         </header>
         <div className={styles.headersize}></div>
         {menu === "notifications" && <Notifications/>}
