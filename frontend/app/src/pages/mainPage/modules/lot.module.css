@@ -1,0 +1,35 @@
+.lot{
+    margin: auto;
+    width: 80%;
+    background-color: aqua;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+.info{
+   
+    min-width: 300px;
+    width: 45%;
+    background-color: bisque;
+    height: 200px;
+}
+.images{
+    display: flex;
+    justify-content: center;
+    max-width: 2500px;
+    min-width: 300px;
+    aspect-ratio: 1/1;
+    padding: 0.1%;
+    border: 2px solid black;
+    width: 50%;
+    height: 100%;
+    
+}
+.images > img{
+    
+    
+    max-width: 100%;
+    max-height: 100%;
+    width: 100%;
+    object-fit: contain;
+}
