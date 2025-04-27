@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Navigate, useNavigate  } from "react-router-dom";
 import styles from "./cars.module.css"
 import foto1 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/q.jpg"
 import foto2 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/x.jpg"
@@ -8,26 +9,26 @@ export default function Cars(){
     const x = [foto1,foto2,foto3];
     const [lots,setLots] = useState([
         {
-            id:1,
+            id:2,
             brand:"Audi",
             model:"RS6",
             year:2002
         },
         {
-            id:1,
+            id:3,
             brand:"Audi",
             model:"RS6",
             year:2002
         },
        
         {
-            id:1,
+            id:4,
             brand:"Audi",
             model:"RS6",
             year:2002
         },
         {
-            id:1,
+            id:5,
             brand:"Audi",
             model:"RS6",
             year:2002
@@ -51,12 +52,13 @@ export default function Cars(){
             year:2002
         }
     ])
+    const navigate = useNavigate();
     const handleSubmit = async () => {
         const response = await fetch("http://localhost:8080/public/lots", {});
         const data = await response.json();
         console.log(JSON.stringify(data))
         if (response.ok) {
-           setLots(data)
+            setLots(data)
         } else {
             alert("Ошибка авторизации");
         }
@@ -69,7 +71,7 @@ export default function Cars(){
         <div className={styles.cars}>
         {lots.map((lot,index)=>{
             return (
-               <div id={1} className={styles.car}>
+               <div id={lot.id} onClick={()=>{navigate(`/lot/${lot.id}`)}} className={styles.car}>
                 <div className={styles.img}><img src={foto3}/></div>
                 <div className={styles.inf}>
                 <div className={styles.brand}>{lot.brand}</div>

@@ -10,7 +10,7 @@ import foto3 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/
 export default function Lot(){
     const {data} = useParams();
     const navigate = useNavigate();
-    const [user,setUser] = useState({});
+    const [user,setUser] = useState({role:"admin"});
     return(
         <>
        <div className={styles1.page}>
@@ -23,10 +23,9 @@ export default function Lot(){
         </header>
         <div className={styles1.headersize}></div>
         <div className={styles.lot}>
-            <div className={styles.images}><img src={foto1}/></div>
-            <div className={styles.info}>
-                dfsdsds
-            </div>
+            <div className={styles.images}><img src={foto2}/></div>
+            <div className={styles.info}></div>
+           {user.role==="admin" &&  <div className={styles.adminMenu}>jhh</div>}
         </div>
         <div>{data}</div>
         <footer className={styles1.footer}>
