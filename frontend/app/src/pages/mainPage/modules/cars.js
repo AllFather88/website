@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useEffect } from "react";
 import { Navigate, useNavigate  } from "react-router-dom";
 import styles from "./cars.module.css"
 import foto1 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/q.jpg"
@@ -53,16 +54,19 @@ export default function Cars(){
         }
     ])
     const navigate = useNavigate();
-    const handleSubmit = async () => {
-        const response = await fetch("http://localhost:8080/public/lots", {});
+    const request = async () => {
+        const response = await fetch("http://localhost:8080/public/getall", {});
         const data = await response.json();
         console.log(JSON.stringify(data))
         if (response.ok) {
             setLots(data)
         } else {
-            alert("Ошибка авторизации");
+            alert("Ошибка");
         }
     };
+     useEffect(()=>{
+           request();
+        },[])
     return(
         <>
         <div className={styles.inp}><input id="search"></input><button onClick={()=>Clean('search')} className={styles.clean}>✕</button ><button onClick={()=>{}} className={styles.search}>⌕</button></div> 

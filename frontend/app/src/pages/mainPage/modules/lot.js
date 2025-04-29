@@ -3,6 +3,7 @@ import styles from "./lot.module.css"
 import styles1 from "../main.module.css"
 import { useNavigate } from "react-router-dom";
 import {useParams}  from "react-router-dom";
+import { useEffect } from "react";
 import foto1 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/foto.jpg"
 import foto2 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/x.jpg"
 import foto3 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/y.jpg"
@@ -10,7 +11,12 @@ import foto3 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/
 export default function Lot(){
     const {data} = useParams();
     const navigate = useNavigate();
-    const [user,setUser] = useState({role:"admin"});
+    const [user,setUser] = useState();
+    useEffect(()=>{
+            const storedUser = sessionStorage.getItem("user");
+            setUser(storedUser ? JSON.parse(storedUser) : null);
+            console.log(JSON.parse(storedUser))
+    },[])
     return(
         <>
        <div className={styles1.page}>
@@ -23,11 +29,11 @@ export default function Lot(){
         </header>
         <div className={styles1.headersize}></div>
         <div className={styles.lot}>
-            <div className={styles.images}><img src={foto2}/></div>
-            <div className={styles.info}></div>
-           {user.role==="admin" &&  <div className={styles.adminMenu}>jhh</div>}
+            <div className={styles.images}><button>&#x2190;</button><img src={foto2}/><button>&#x2192;</button></div>
+            <div className={styles.info}>{data}</div>
+           {user && user.role==="admin" &&  <div className={styles.adminMenu}>jhh</div>}
         </div>
-        <div>{data}</div>
+       
         <footer className={styles1.footer}>
         </footer>
        </div>

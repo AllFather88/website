@@ -20,15 +20,15 @@ export default function Add(){
                 const storedUser = sessionStorage.getItem("user");
                 const user = JSON.parse(storedUser);
                 try{
-                    const response = await fetch("http://localhost:8080/private/addlot", { 
+                    const response = await fetch("http://localhost:8080/admin/addlot", { 
                         method: "POST",
                         body: formData,
                         headers: {
                             "Authorization": "Token "+ user.tokens.token,  // Авторизация
                         }
                     });
+                    return
                 }catch(error){
-                    console.log("dddddd")
                     try{
                         const token = await fetch("http://localhost:8080/public/newtoken", { 
                             method: "GET",
@@ -38,6 +38,7 @@ export default function Add(){
                         console.log(JSON.stringify(x))
                         user.tokens.token.token = await token.json()
                         sessionStorage.setItem("user",JSON.stringify(user))
+                        return
                     }catch(e){
                         sessionStorage.removeItem("user")
                         navigate("/auth")
