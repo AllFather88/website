@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Разрешаем CORS preflight-запросы
                         .requestMatchers("/public/**").permitAll() // Открытые пути
+                        .requestMatchers("/admin/**").hasAnyRole("admin")
                         .requestMatchers("/private/**").authenticated() // Остальные требуют JWT
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)

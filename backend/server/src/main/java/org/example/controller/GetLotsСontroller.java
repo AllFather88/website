@@ -16,28 +16,14 @@ import java.util.List;
 public class GetLotsСontroller {
     @Autowired
     CarsRepository x;
-    @PostMapping("/addlot")
-    public String handleForm(@RequestParam("file") List<MultipartFile> files,
-                             @ModelAttribute Cars data) {
-        System.out.println("Файлы загружены: " + files.size());
-        String uploadDir = "C:/Users/user/Desktop/ч/website/backend/server/src/main/resources/images/";
-        try {
-            String uniqueDir = uploadDir + System.currentTimeMillis() + "/";
-            Files.createDirectories(Paths.get(uniqueDir));
-            for (MultipartFile file : files) {
-                Path path = Paths.get(uniqueDir, file.getOriginalFilename()); // Сохранение файла в новую папку
-                Files.write(path, file.getBytes());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        x.save(data);
-        return "Файл загружен!";
+    @GetMapping("/getall")
+    public List<Cars> allLots(){
+        List<Cars> response = x.findAll();
+        return response;
     }
 }
 @RestController
-@RequestMapping("/private")
+@RequestMapping("/admin")
 class AddLotsСontroller {
     @Autowired
     CarsRepository x;
@@ -47,7 +33,8 @@ class AddLotsСontroller {
         System.out.println("Файлы загружены: " + files.size());
         String uploadDir = "./";
         try {
-            String uniqueDir = uploadDir + System.currentTimeMillis() + "/";
+            data = x.save(data);
+            String uniqueDir = uploadDir +  data.getId() + "/";
             Files.createDirectories(Paths.get(uniqueDir));
             for (MultipartFile file : files) {
                 Path path = Paths.get(uniqueDir, file.getOriginalFilename()); // Сохранение файла в новую папку
@@ -57,7 +44,7 @@ class AddLotsСontroller {
             e.printStackTrace();
         }
 
-        x.save(data);
+
         return "Файл загружен!";
     }
 }
