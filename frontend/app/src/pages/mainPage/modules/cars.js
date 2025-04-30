@@ -76,7 +76,7 @@ export default function Cars(){
         {lots.map((lot,index)=>{
             return (
                <div id={lot.id} onClick={()=>{navigate(`/lot/${lot.id}`)}} className={styles.car}>
-                <div className={styles.img}><img src={foto3}/></div>
+                <div className={styles.img}><img src={foto2}/></div>
                 <div className={styles.inf}>
                 <div className={styles.brand}>{lot.brand}</div>
                 <div className={styles.model}>Модель:{lot.model}</div>

@@ -12,12 +12,12 @@ export default  function Register(){
         const userData = {
             name: formData.get("name"),
             password: formData.get("password"),
+            phone_number:formData.get("phone_number"),
         };
         if( formData.get("repeatPassword") !== userData.password ){
             setMessage("Ошибка пароли не совпадают")
             return;
         }
-        console.log(JSON.stringify(userData))
        try{
         const response = await fetch("http://localhost:8080/public/registration", {
             method: "POST",
@@ -27,7 +27,6 @@ export default  function Register(){
             body: JSON.stringify(userData),
         });
         const data = await response.json();
-        console.log(JSON.stringify(data))
         if (response.ok) {
            if(data.token === "error"){
                 setMessage(data.tokens.refreshToken);
@@ -37,20 +36,21 @@ export default  function Register(){
 				navigate('/')
            }
         } else {
-            alert("Ошибка авторизации");
+            setMessage("Ошибка "+ response.status);
         }
        }catch(error){
             setMessage("Не удалось соединится с сервером");
        }
-
     };
     return(
         <>
         <div className={styles.auth}>
         <h1>Регистрация</h1>
+        <div>Пароль </div>
         <form className={styles.form} onSubmit={handleSubmit}>
-           <div><input className={styles.login} required  name="name" pattern="[A-Za-z]{3,}" type="text"  placeholder="name"></input></div> 
-           <div><input className={styles.password} required pattern="{6,}" name="password" type="password"  placeholder="password"></input></div> 
+           <div><input className={styles.login} required  name="name" pattern="[A-Za-z]{3,10}" type="text" title="Логин должен состоять из латинских букв и иметь размер от 3 до 10 символов"  placeholder="login"></input></div>
+           <div><input className={styles.number} required  name="phone_number" defaultValue={"+375 "} pattern="^\+375 \d{2} \d{5}$"  title="Введите номер в формате: +375 29 1234567"  type="tel"  placeholder="phone number"></input></div> 
+           <div><input className={styles.password} required pattern="(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}" title="Пароль должен содержать минимум 6 символов, хотя бы одну заглавную латинскую букву, одну цифру и один специальный символ (@$!%*?&)" name="password" type="password"  placeholder="password"></input></div> 
            <div><input className={styles.password} required name="repeatPassword" type="password" placeholder="repeat password"></input></div> 
            <button className={styles.btn}>Зарегистрироваться</button>
         </form>

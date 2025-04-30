@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import foto1 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/foto.jpg"
 import foto2 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/x.jpg"
 import foto3 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/y.jpg"
+import { NewToken } from "../../authentication/auth";
 
 export default function Lot(){
     const {data} = useParams();
@@ -17,6 +18,73 @@ export default function Lot(){
             setUser(storedUser ? JSON.parse(storedUser) : null);
             console.log(JSON.parse(storedUser))
     },[])
+    const AdminMenu = ()=>{
+        const newDate = async (event,type) => {
+            event.preventDefault(); 
+            const formData = new FormData(event.target);
+            const formObject = {};
+            formData.forEach((value, key) => {
+                formObject[key] = value;
+            });
+            formObject['id'] = Number(data);
+            console.log(JSON.stringify(formObject))
+            while(true){
+                const storedUser = sessionStorage.getItem("user");
+                const user = JSON.parse(storedUser);               
+                try{
+                    const response = await fetch("http://localhost:8080/admin/"+type, { 
+                        method: "POST",
+                        body:  JSON.stringify(formObject),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": "Token "+ user.tokens.token,  
+                        }
+                    });
+                    return
+                }catch(error){
+                    NewToken(user)
+                }
+            }
+        };
+        const DelLot = async () => {
+            while(true){
+                const storedUser = sessionStorage.getItem("user");
+                const user = JSON.parse(storedUser);               
+                try{
+                    const response = await fetch("http://localhost:8080/admin/dellot", { 
+                        method: "POST",
+                        body:  Number(data),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": "Token "+ user.tokens.token,  
+                        }
+                    });
+                    console.log(await response.text())
+                    return
+                }catch(error){
+                    NewToken(user)
+                }
+            }
+        };
+        return(
+            <div className={styles.adminmenu}>
+                    <form onSubmit={(event)=>{newDate(event,"end")}}>
+                        <input required type="datetime-local"  id="endDatetime" name="date"></input>
+                        <button>Сменить дату конца</button>
+                    </form>
+                    <form onSubmit={(event)=>{newDate(event,"start")}}>
+                        <input required type="datetime-local" id="startDatetime" name="date"></input>
+                        <button>Сменить дату начала</button>
+                    </form>
+                    <button onClick={DelLot}>Удалить лот</button>
+                    <div className={styles.bidinf}>
+                    <div>Лидер:</div>
+                    <div></div>
+                    <div>Номер телефона:</div>
+                    </div>
+            </div>
+        )
+    }
     return(
         <>
        <div className={styles1.page}>
@@ -25,15 +93,19 @@ export default function Lot(){
         <div className={styles1.name}>NAME</div>
         <div className={styles1.username}>{user ?<><button onClick={()=>{sessionStorage.removeItem("user");setUser(null)}}>Кнопка</button>{user.name}</>  : <button onClick={()=>{navigate("/auth")}}>Войти</button>}</div>
         </div>
-        
         </header>
         <div className={styles1.headersize}></div>
         <div className={styles.lot}>
-            <div className={styles.images}><button>&#x2190;</button><img src={foto2}/><button>&#x2192;</button></div>
-            <div className={styles.info}>{data}</div>
-           {user && user.role==="admin" &&  <div className={styles.adminMenu}>jhh</div>}
+        <div className={styles.images}>
+            <img src={foto3} alt="Фото"/>
+            <div className={styles.controls}>
+                <button>&#x2190;</button>
+                <button>&#x2192;</button>
+            </div>
         </div>
-       
+        <div className={styles.info}>{data}</div>
+        {user && user.role==="admin" &&  <AdminMenu/>}
+        </div>
         <footer className={styles1.footer}>
         </footer>
        </div>

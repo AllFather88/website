@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styles from './auth.module.css'
 import { useNavigate } from "react-router-dom";
 import "../general.css"
-
+import { Navigate } from "react-router-dom";
 export default  function Auth(){
     const [message,setMessage] = useState("");
     const [type,setType] = useState(true)
@@ -53,5 +53,19 @@ export default  function Auth(){
         </div>
         </>
     )
+}
+export const NewToken = async (user)=>{
+    const navigate = useNavigate();
+    try{
+        const token = await fetch("http://localhost:8080/public/newtoken", { 
+            method: "GET",
+            body: user.tokens.token.refreshtoken,
+        });
+        user.tokens.token.token = await token.json()
+        sessionStorage.setItem("user",JSON.stringify(user))
+    }catch(e){
+        sessionStorage.removeItem("user")
+        navigate("/auth")
+    }
 }
  

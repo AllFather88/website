@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styles from "./add.module.css"
 import { useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
+import { NewToken } from "../../authentication/auth";
 
 export default function Add(){
     const navigate = useNavigate()
@@ -9,51 +10,27 @@ export default function Add(){
         event.preventDefault(); 
         const formData = new FormData(event.target);
         const formObject = {};
-
-    formData.forEach((value, key) => {
-        formObject[key] = value;
-    });
-        console.log(JSON.stringify(formObject))
-        
-            
-            while(true){
-                const storedUser = sessionStorage.getItem("user");
-                const user = JSON.parse(storedUser);
-                try{
-                    const response = await fetch("http://localhost:8080/admin/addlot", { 
-                        method: "POST",
-                        body: formData,
-                        headers: {
-                            "Authorization": "Token "+ user.tokens.token,  // Авторизация
-                        }
-                    });
-                    return
-                }catch(error){
-                    try{
-                        const token = await fetch("http://localhost:8080/public/newtoken", { 
-                            method: "GET",
-                            body: user.tokens.token.refreshtoken,
-                        });
-                        const x =await token.json();
-                        console.log(JSON.stringify(x))
-                        user.tokens.token.token = await token.json()
-                        sessionStorage.setItem("user",JSON.stringify(user))
-                        return
-                    }catch(e){
-                        sessionStorage.removeItem("user")
-                        navigate("/auth")
+        formData.forEach((value, key) => {
+            formObject[key] = value;
+        });
+        while(true){
+            const storedUser = sessionStorage.getItem("user");
+            const user = JSON.parse(storedUser);               
+            try{
+                const response = await fetch("http://localhost:8080/admin/addlot", { 
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "Authorization": "Token "+ user.tokens.token,  // Авторизация
                     }
-                   
-                   
-    
-                    }
-                }
-            
-         
-      
+                });
+                return
+            }catch(error){
+                NewToken(user)
+            }
+        }
     };
     const [date, setDate] = useState("");
-
     const handleChange = (event) => {
         setDate(event.target.value);
     };
