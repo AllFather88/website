@@ -2,6 +2,8 @@ package org.example.controller;
 
 import org.example.base.Cars;
 import org.example.base.CarsRepository;
+import org.example.base.DateDTO;
+import org.example.service.lots.Lots;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,24 +28,29 @@ public class GetLotsСontroller {
 @RequestMapping("/admin")
 class AddLotsСontroller {
     @Autowired
-    CarsRepository x;
+    Lots lots;
     @PostMapping("/addlot")
-    public String handleForm(@RequestParam("file") List<MultipartFile> files,
+    public String add(@RequestParam("file") List<MultipartFile> files,
                              @ModelAttribute Cars data) {
-        System.out.println("Файлы загружены: " + files.size());
-        String uploadDir = "./src/main/resources/";
-        try {
-            data = x.save(data);
-            String uniqueDir = uploadDir +  data.getId() + "/";
-            Files.createDirectories(Paths.get(uniqueDir));
-            for (MultipartFile file : files) {
-                Path path = Paths.get(uniqueDir, file.getOriginalFilename()); // Сохранение файла в новую папку
-                Files.write(path, file.getBytes());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "Файл загружен!";
+       return lots.addLot(files,data);
     }
+    @PostMapping("/dellot")
+    public String del(@RequestBody Integer id) {
+        lots.delLot(id);
+        return "Лот "+id+ " удaлён";
+    }
+    @PostMapping("/start")
+    public String updateStart(@RequestBody DateDTO newDate) {
+        System.out.println(newDate.toString());
+        lots.updateStartDate(newDate);
+        return "Лот"+newDate.getId()+ "обновлён";
+    }
+    @PostMapping("/end")
+    public String updateEnd(@RequestBody DateDTO newDate) {
+        lots.updateEndDate(newDate);
+        return "Лот"+newDate.getId()+ "обновлён";
+    }
+
 }
+
 
