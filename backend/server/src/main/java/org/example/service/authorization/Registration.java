@@ -21,6 +21,7 @@ public class Registration {
             a = new User();
             a.setPassword(user.getPassword());
             a.setName(user.getName());
+            a.setPhone_number(user.getPhone_number());
             a.setRole("user");
             users.save(a);
             response.setName(user.getName());

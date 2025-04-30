@@ -39,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 sendErrorResponse(response, "Invalid token", HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
-            List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(JwtService.extractClaims(token).get("role",String.class)));
+            List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" +JwtService.extractClaims(token).get("role",String.class)));
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(auth);
             chain.doFilter(request, response);

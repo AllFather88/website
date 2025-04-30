@@ -54,7 +54,6 @@ public class JwtService {
         }
     }
     static public Claims extractClaims(String token) {
-        System.out.println("ssss");
         return Jwts.parser()
                 .verifyWith(getKey())
                 .build()

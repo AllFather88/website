@@ -31,7 +31,7 @@ class AddLotsСontroller {
     public String handleForm(@RequestParam("file") List<MultipartFile> files,
                              @ModelAttribute Cars data) {
         System.out.println("Файлы загружены: " + files.size());
-        String uploadDir = "./";
+        String uploadDir = "./src/main/resources/";
         try {
             data = x.save(data);
             String uniqueDir = uploadDir +  data.getId() + "/";
@@ -43,8 +43,6 @@ class AddLotsСontroller {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
         return "Файл загружен!";
     }
 }
