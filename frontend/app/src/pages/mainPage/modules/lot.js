@@ -9,15 +9,58 @@ import foto2 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/
 import foto3 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/y.jpg"
 import { NewToken } from "../../authentication/auth";
 
-export default function Lot(){
+export default  function Lot(){
     const {data} = useParams();
     const navigate = useNavigate();
     const [user,setUser] = useState();
+    const [lot,setLot] = useState();
+    const [imageSrc, setImageSrc] = useState([]);
+    const [index,setIndex] = useState(0);
+    const [names,setNames] = useState([]);
+    useEffect(() => {
+        fetch(`http://localhost:8080/public/lot/${Number(data)}`) 
+        .then(response => {
+            if (!response.ok) {
+                navigate('/');
+            }
+            return response.json(); 
+        })
+        .then(lotjson => setLot(lotjson))
+        .catch(error => console.error("Ошибка", error));
+    }, [names,index]);
     useEffect(()=>{
             const storedUser = sessionStorage.getItem("user");
             setUser(storedUser ? JSON.parse(storedUser) : null);
             console.log(JSON.parse(storedUser))
     },[])
+    const getNames = async () => { 
+        const response = await fetch(`http://localhost:8080/public/images/${Number(data)}`);
+        let imagenames = [];
+        try {
+            imagenames = await response.json();
+            console.log(imagenames)
+        } catch (e) {
+            return;
+        }
+        if (response.ok) {
+            setNames(imagenames);
+        } else {
+            alert("Ошибка");
+        }
+    }
+    useEffect(() => { 
+        getNames();
+         
+      }, []);
+    useEffect(() => {
+        if (!names.length || names[index] === undefined) return; 
+        fetch(`http://localhost:8080/public/image/${Number(data)}/${names[index]}`)
+            .then(response => response.ok ? response.blob() :console.error("Ошибка"))
+            .then(blob => setImageSrc(URL.createObjectURL(blob)))
+            .catch(error => console.error("Ошибка загрузки изображения:", error));
+    },  [names,index]);
+
+   
     const AdminMenu = ()=>{
         const newDate = async (event,type) => {
             event.preventDefault(); 
@@ -90,14 +133,14 @@ export default function Lot(){
        <div className={styles1.page}>
        <header className={styles1.header}>
         <div className={styles1.names}>
-        <div className={styles1.name}>NAME</div>
-        <div className={styles1.username}>{user ?<><button onClick={()=>{sessionStorage.removeItem("user");setUser(null)}}>Кнопка</button>{user.name}</>  : <button onClick={()=>{navigate("/auth")}}>Войти</button>}</div>
+            <div className={styles1.name}>NAME</div>
+            <div className={styles1.username}>{user ?<><button onClick={()=>{sessionStorage.removeItem("user");setUser(null)}}>Кнопка</button>{user.name}</>  : <button onClick={()=>{navigate("/auth")}}>Войти</button>}</div>
         </div>
         </header>
         <div className={styles1.headersize}></div>
         <div className={styles.lot}>
         <div className={styles.images}>
-            <img src={foto3} alt="Фото"/>
+            <img src={imageSrc || foto1} alt="Фото"/>
             <div className={styles.controls}>
                 <button>&#x2190;</button>
                 <button>&#x2192;</button>

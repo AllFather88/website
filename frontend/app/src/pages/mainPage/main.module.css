@@ -4,6 +4,7 @@
     background-color: brown;
     width: 100%;
     border-bottom: 2px solid black;
+    z-index: 9999;
 }
 .names{
     align-items: center;

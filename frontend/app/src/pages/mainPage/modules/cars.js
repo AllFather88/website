@@ -8,58 +8,25 @@ import foto3 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/
 
 export default function Cars(){
     const x = [foto1,foto2,foto3];
-    const [lots,setLots] = useState([
-        {
-            id:2,
-            brand:"Audi",
-            model:"RS6",
-            year:2002
-        },
-        {
-            id:3,
-            brand:"Audi",
-            model:"RS6",
-            year:2002
-        },
-       
-        {
-            id:4,
-            brand:"Audi",
-            model:"RS6",
-            year:2002
-        },
-        {
-            id:5,
-            brand:"Audi",
-            model:"RS6",
-            year:2002
-        },
-        {
-            id:1,
-            brand:"Audi",
-            model:"RS6",
-            year:2002
-        },
-        {
-            id:1,
-            brand:"Audi",
-            model:"RS6",
-            year:2002
-        },
-        {
-            id:1,
-            brand:"Audi",
-            model:"RS6",
-            year:2002
-        }
-    ])
+    const [lots,setLots] = useState([])
     const navigate = useNavigate();
     const request = async () => {
         const response = await fetch("http://localhost:8080/public/getall", {});
-        const data = await response.json();
-        console.log(JSON.stringify(data))
+        let data = await response.json();
         if (response.ok) {
-            setLots(data)
+            const promises = data.map(async (lot) => {
+                const imageResponse = await fetch(`http://localhost:8080/public/image/${Number(lot.id)}`);
+                if (!imageResponse.ok) {
+                    console.log(`Изображение для ${lot.id} не найдено`);
+                    return { ...lot, url: null };
+                }
+                const blob = await imageResponse.blob();
+                const url = URL.createObjectURL(blob);
+                return { ...lot, url }; 
+            });
+            data = await Promise.all(promises);
+            setLots(data);
+            console.log(data);
         } else {
             alert("Ошибка");
         }
@@ -69,14 +36,14 @@ export default function Cars(){
         },[])
     return(
         <>
-        <div className={styles.inp}><input id="search"></input><button onClick={()=>Clean('search')} className={styles.clean}>✕</button ><button onClick={()=>{}} className={styles.search}>⌕</button></div> 
+        <div className={styles.inp}><input id="search"></input><button doClick={()=>Clean('search')} className={styles.clean}>✕</button ><button onClick={()=>{}} className={styles.search}>⌕</button></div> 
         <div className={styles.all}>
         <div className={styles.filter}></div>
         <div className={styles.cars}>
         {lots.map((lot,index)=>{
             return (
-               <div id={lot.id} onClick={()=>{navigate(`/lot/${lot.id}`)}} className={styles.car}>
-                <div className={styles.img}><img src={foto2}/></div>
+               <div id={lot.id} onDoubleClick={()=>{navigate(`/lot/${lot.id}`)}} className={styles.car}>
+                <div className={styles.img}><img src={lot.url || foto2}/></div>
                 <div className={styles.inf}>
                 <div className={styles.brand}>{lot.brand}</div>
                 <div className={styles.model}>Модель:{lot.model}</div>
