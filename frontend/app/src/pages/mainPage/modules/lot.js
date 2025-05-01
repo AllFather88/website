@@ -6,14 +6,13 @@ import {useParams}  from "react-router-dom";
 import { useEffect } from "react";
 import foto1 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/foto.jpg"
 import foto2 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/x.jpg"
-import foto3 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/y.jpg"
-import { NewToken } from "../../authentication/auth";
+import foto3 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/main.jpg"
 
 export default  function Lot(){
     const {data} = useParams();
     const navigate = useNavigate();
     const [user,setUser] = useState();
-    const [lot,setLot] = useState();
+    const [lot,setLot] = useState({});
     const [imageSrc, setImageSrc] = useState([]);
     const [index,setIndex] = useState(0);
     const [names,setNames] = useState([]);
@@ -27,7 +26,7 @@ export default  function Lot(){
         })
         .then(lotjson => setLot(lotjson))
         .catch(error => console.error("Ошибка", error));
-    }, [names,index]);
+    }, []);
     useEffect(()=>{
             const storedUser = sessionStorage.getItem("user");
             setUser(storedUser ? JSON.parse(storedUser) : null);
@@ -59,9 +58,18 @@ export default  function Lot(){
             .then(blob => setImageSrc(URL.createObjectURL(blob)))
             .catch(error => console.error("Ошибка загрузки изображения:", error));
     },  [names,index]);
-
-   
     const AdminMenu = ()=>{
+        useEffect(()=>{
+            fetch(`http://localhost:8080/private/lot/${Number(data)}`) 
+            .then(response => {
+            if (!response.ok) {
+                navigate('/');
+            }
+            return response.json(); 
+        })
+        .then(lotjson => setLot(lotjson))
+        .catch(error => console.error("Ошибка", error));
+        },[])
         const newDate = async (event,type) => {
             event.preventDefault(); 
             const formData = new FormData(event.target);
@@ -83,9 +91,24 @@ export default  function Lot(){
                             "Authorization": "Token "+ user.tokens.token,  
                         }
                     });
-                    return
+                    if(!response.ok){
+                        const token = await  fetch("http://localhost:8080/public/newtoken", { 
+                            method: "GET",
+                            body: user.tokens.token.refreshtoken,
+                        });
+                        if(!token.ok){
+                            sessionStorage.removeItem("user")
+                            navigate("/auth")
+                            return
+                        }
+                        user.tokens.token.token = await token.json()
+                        sessionStorage.setItem("user",JSON.stringify(user))
+                    }
+                    else{
+                        return
+                    }
                 }catch(error){
-                    NewToken(user)
+                    console.log(error)
                 }
             }
         };
@@ -102,21 +125,35 @@ export default  function Lot(){
                             "Authorization": "Token "+ user.tokens.token,  
                         }
                     });
-                    console.log(await response.text())
-                    return
+                    if(!response.ok){
+                        const token = await fetch("http://localhost:8080/public/newtoken", { 
+                            method: "GET",
+                            body: user.tokens.token.refreshtoken,
+                        });
+                        if(!token.ok){
+                            sessionStorage.removeItem("user")
+                            navigate("/auth")
+                            return
+                        }
+                        user.tokens.token.token = await token.json()
+                        sessionStorage.setItem("user",JSON.stringify(user))
+                    }
+                    else{
+                        return
+                    }
                 }catch(error){
-                    NewToken(user)
+                   console.log(error)
                 }
             }
         };
         return(
             <div className={styles.adminmenu}>
                     <form onSubmit={(event)=>{newDate(event,"end")}}>
-                        <input required type="datetime-local"  id="endDatetime" name="date"></input>
+                        <input defaultValue={lot.end} required type="datetime-local"  id="endDatetime" name="date"></input>
                         <button>Сменить дату конца</button>
                     </form>
                     <form onSubmit={(event)=>{newDate(event,"start")}}>
-                        <input required type="datetime-local" id="startDatetime" name="date"></input>
+                        <input  defaultValue={lot.start}  required type="datetime-local" id="startDatetime" name="date"></input>
                         <button>Сменить дату начала</button>
                     </form>
                     <button onClick={DelLot}>Удалить лот</button>
@@ -127,6 +164,21 @@ export default  function Lot(){
                     </div>
             </div>
         )
+    }
+    const AddIndex = ()=>{
+        let s = index
+        setIndex(++s % names.length)
+    }
+    const MinusIndex = ()=>{
+        let s = index
+        if(s-1 < 0){
+            setIndex(names.length - 1)
+            console.log(index)
+        }
+        else{
+            setIndex(--s)
+            console.log(index)
+        }
     }
     return(
         <>
@@ -142,8 +194,8 @@ export default  function Lot(){
         <div className={styles.images}>
             <img src={imageSrc || foto1} alt="Фото"/>
             <div className={styles.controls}>
-                <button>&#x2190;</button>
-                <button>&#x2192;</button>
+                <button onClick={MinusIndex}>&#x2190;</button>
+                <button onClick={AddIndex}>&#x2192;</button>
             </div>
         </div>
         <div className={styles.info}>{data}</div>

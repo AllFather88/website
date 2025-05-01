@@ -54,18 +54,3 @@ export default  function Auth(){
         </>
     )
 }
-export const NewToken = async (user)=>{
-    const navigate = useNavigate();
-    try{
-        const token = await fetch("http://localhost:8080/public/newtoken", { 
-            method: "GET",
-            body: user.tokens.token.refreshtoken,
-        });
-        user.tokens.token.token = await token.json()
-        sessionStorage.setItem("user",JSON.stringify(user))
-    }catch(e){
-        sessionStorage.removeItem("user")
-        navigate("/auth")
-    }
-}
- 

@@ -4,12 +4,29 @@ import { Navigate, useNavigate  } from "react-router-dom";
 import styles from "./cars.module.css"
 import foto1 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/q.jpg"
 import foto2 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/x.jpg"
-import foto3 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/y.jpg"
+import foto3 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/main.jpg"
 
 export default function Cars(){
     const x = [foto1,foto2,foto3];
+    const [flots,setfLots] = useState([])
     const [lots,setLots] = useState([])
-    const navigate = useNavigate();
+    const [filter,setFilter] = useState({
+        brands:[],
+        models:[],
+        years:[],
+        maxprice: 0,
+        minprice: 0,
+    })
+    const extractFilters = (data) => {
+        return data.reduce((acc, lot) => {
+            acc.brands.add(lot.brand);
+            acc.models.add(lot.model);
+            acc.years.add(lot.year);
+            acc.minprice = acc.minprice ? Math.min(acc.minprice, lot.bid) : lot.bid;
+            acc.maxprice = acc.maxprice ? Math.max(acc.maxprice, lot.bid) : lot.bid;
+            return acc;
+        }, { brands: new Set(), models: new Set(), years: new Set(), minprice: null, maxprice: null });
+    };
     const request = async () => {
         const response = await fetch("http://localhost:8080/public/getall", {});
         let data = await response.json();
@@ -26,38 +43,142 @@ export default function Cars(){
             });
             data = await Promise.all(promises);
             setLots(data);
-            console.log(data);
+            setfLots(data);
+            const filterData = extractFilters(data);
+            setFilter({
+                brands: [...filterData.brands], 
+                models: [...filterData.models],
+                years: [...filterData.years],
+                minprice: filterData.minprice,
+                maxprice: filterData.maxprice
+            });
         } else {
             alert("Ошибка");
         }
     };
-     useEffect(()=>{
+    useEffect(()=>{
            request();
         },[])
+      
+
+    const Filter = (event)=>{
+        event.preventDefault(); 
+        const formData = new FormData(event.target);
+        const formObject = {};
+        formData.forEach((value, key) => {
+            formObject[key] = value;
+        });
+        console.log(formObject)
+    }
+    const [selectedBrand, setSelectedBrand] = useState("");
+    const [selectedModel, setSelectedModel] = useState("");
+    const [minPrice, setMinPrice] = useState(0);
+    const [maxPrice, setMaxPrice] = useState(0);
+    const [inSale, setInSale] = useState(false);
+    const [over, setOver] = useState(false);
+    const [before, setBefore] = useState(false);
+    const handleFilter = ()=>{
+        const filtered = flots.filter(lot => {
+            const currentDate = new Date();
+            const endDate = new Date(lot.end);
+            const startDate = new Date(lot.start)
+            return (
+                (selectedBrand === "" || lot.brand === selectedBrand) &&
+                (selectedModel === "" || lot.model === selectedModel) &&
+                (lot.bid >= minPrice) &&
+                (lot.bid <= maxPrice || maxPrice === 0) &&
+                ( (!inSale && !over && !before) 
+                ||  (over && endDate < currentDate)
+                ||  (before && startDate > currentDate) 
+                || (inSale &&  endDate > currentDate && startDate < currentDate)
+            )
+            );
+        });
+        setLots(filtered)
+    }
     return(
         <>
-        <div className={styles.inp}><input id="search"></input><button doClick={()=>Clean('search')} className={styles.clean}>✕</button ><button onClick={()=>{}} className={styles.search}>⌕</button></div> 
         <div className={styles.all}>
-        <div className={styles.filter}></div>
+        <div className={styles.filter}>
+        <select className={styles.brand} onChange={(e) => setSelectedBrand(e.target.value)}>
+            <option value="">Выберите марку</option>
+            {filter.brands.map((brand) => (
+                <option key={brand} value={brand}>{brand}</option>
+            ))}
+        </select>
+        <select className={styles.model} onChange={(e) => setSelectedModel(e.target.value)}>
+            <option value="">Выберите модель</option>
+            {filter.models.map((model) => (
+                <option key={model} value={model}>{model}</option>
+            ))}
+        </select>
+        <input className={styles.min} type="number" placeholder="Мин. цена" min="0" onChange={(e) => setMinPrice(Number(e.target.value))} />
+        <input className={styles.max} type="number" placeholder="Макс. цена" min="0" onChange={(e) => setMaxPrice(Number(e.target.value))} />
+        <label>
+            <input className={styles.insale} type="checkbox" onChange={(e) => setInSale(e.target.checked)} /> В торгах
+        </label>
+        <label>
+            <input className={styles.over} type="checkbox" onChange={(e) => setOver(e.target.checked)} /> Торги окончены
+        </label>
+        <label>
+            <input className={styles.before} type="checkbox" onChange={(e) => setBefore(e.target.checked)} /> Перед торгами
+        </label>
+        <button onClick={handleFilter}>Принять</button>
+    </div>
         <div className={styles.cars}>
         {lots.map((lot,index)=>{
-            return (
-               <div id={lot.id} onDoubleClick={()=>{navigate(`/lot/${lot.id}`)}} className={styles.car}>
-                <div className={styles.img}><img src={lot.url || foto2}/></div>
-                <div className={styles.inf}>
-                <div className={styles.brand}>{lot.brand}</div>
-                <div className={styles.model}>Модель:{lot.model}</div>
-                <div className={styles.year}>{lot.year} год</div>
-                <div className={styles.max}>Текущая ставка: {lot.year}($)</div>
-                </div>
-            </div>
-           )
+           return( <Lot key={lot.id} lot={lot} index={index}/>)
         })}
         </div>
         </div>
         </>
     )
-
+}
+const Lot = ({lot,index})=>{
+    const navigate = useNavigate();
+    const [status,SetStatus] = useState("")
+    function Status(){
+        const currentDate = new Date();
+        const endDate = new Date(lot.end);
+        const startDate = new Date(lot.start)
+        console.log("endDate:", lot.end);
+        console.log("startDate:", lot.start);
+        console.log("currentDate:", currentDate);
+        if(endDate < currentDate){
+            SetStatus("Торги окончены")
+            return
+        }
+        if(startDate > currentDate){
+            const startDate = new Date(lot.start);
+            const diff = startDate - currentDate; 
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            SetStatus(`До начала торгов: ${hours}ч ${minutes}м ${seconds}с`)
+            return
+        }
+        const diff =  endDate - currentDate; 
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        SetStatus( `До конца торгов: ${hours}ч ${minutes}м ${seconds}с`)            
+    }
+    useEffect(()=>{
+        const interval = setInterval(Status, 1000); 
+        return (() => clearInterval(interval))
+    },[]);
+    return (
+       <div id={lot.id} onClick={()=>{navigate(`/lot/${lot.id}`)}} className={styles.car}>
+        <div className={styles.img}><img src={lot.url || foto2}/></div>
+        <div className={styles.inf}>
+        <div className={styles.brand}>{lot.brand}</div>
+        <div className={styles.model}>Модель:{lot.model}</div>
+        <div className={styles.year}>{lot.year} год</div>
+        <div className={styles.max}>Текущая ставка: {lot.bid}($)</div>
+        <div  className={styles.status} >{status}</div>
+        </div>
+    </div>
+   )
 }
 const Clean = (id)=>{
     const element = document.getElementById(id);

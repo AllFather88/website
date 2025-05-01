@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import styles from "./add.module.css"
 import { useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { NewToken } from "../../authentication/auth";
 
 export default function Add(){
     const navigate = useNavigate()
@@ -24,9 +23,24 @@ export default function Add(){
                         "Authorization": "Token "+ user.tokens.token,  // Авторизация
                     }
                 });
-                return
+                if(!response.ok){
+                    const token = await  fetch("http://localhost:8080/public/newtoken", { 
+                        method: "GET",
+                        body: user.tokens.token.refreshtoken,
+                    });
+                    if(!token.ok){
+                        sessionStorage.removeItem("user")
+                        navigate("/auth")
+                        return
+                    }
+                    user.tokens.token.token = await token.json()
+                    sessionStorage.setItem("user",JSON.stringify(user))
+                }
+                else{
+                    return
+                }
             }catch(error){
-                NewToken(user)
+                console.log(error)
             }
         }
     };
