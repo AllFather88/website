@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styles from "./add.module.css"
 import { useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
+import { NewToken } from "../../authentication/auth";
 
 export default function Add(){
     const navigate = useNavigate()
@@ -12,29 +13,20 @@ export default function Add(){
         formData.forEach((value, key) => {
             formObject[key] = value;
         });
-        while(true){
+        let i = 100
+        while(--i){
             const storedUser = sessionStorage.getItem("user");
-            const user = JSON.parse(storedUser);               
+            const user1 = JSON.parse(storedUser);       
             try{
                 const response = await fetch("http://localhost:8080/admin/addlot", { 
                     method: "POST",
                     body: formData,
                     headers: {
-                        "Authorization": "Token "+ user.tokens.token,  // Авторизация
+                        "Authorization": "Token "+ user1.tokens.token, 
                     }
                 });
                 if(!response.ok){
-                    const token = await  fetch("http://localhost:8080/public/newtoken", { 
-                        method: "GET",
-                        body: user.tokens.token.refreshtoken,
-                    });
-                    if(!token.ok){
-                        sessionStorage.removeItem("user")
-                        navigate("/auth")
-                        return
-                    }
-                    user.tokens.token.token = await token.json()
-                    sessionStorage.setItem("user",JSON.stringify(user))
+                  await NewToken(navigate)
                 }
                 else{
                     return
@@ -76,7 +68,7 @@ export default function Add(){
             <input placeholder="Начальная цена" name="starting_price" type="text"></input>
             <input type="datetime-local" onChange={handleChange} id="startDatetime" name="start"></input>
             <input type="datetime-local"  id="endDatetime" name="end"></input>
-            <button >Зарегистрироваться</button>
+            <button >Добавить</button>
         </form>
         </>
     )

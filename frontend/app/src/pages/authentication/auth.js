@@ -54,3 +54,23 @@ export default  function Auth(){
         </>
     )
 }
+export const NewToken = async (navigate)=>{
+    const storedUser = sessionStorage.getItem("user");
+    const user1 = JSON.parse(storedUser);     
+    const tokenResponse = await fetch("http://localhost:8080/public/newtoken", { 
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({ token: user1.tokens.refreshtoken }) 
+    });
+    if(!tokenResponse.ok){
+        sessionStorage.removeItem("user")
+        navigate("/auth")
+        return
+    }
+    const tc = await tokenResponse.json()
+    user1.tokens.token = tc.token
+    console.log(user1.tokens.token)
+    sessionStorage.setItem("user",JSON.stringify(user1))
+}

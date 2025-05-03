@@ -99,6 +99,7 @@ export default function Cars(){
     return(
         <>
         <div className={styles.all}>
+        <h2 className={styles.fil}>Фильтр</h2>
         <div className={styles.filter}>
         <select className={styles.brand} onChange={(e) => setSelectedBrand(e.target.value)}>
             <option value="">Выберите марку</option>
