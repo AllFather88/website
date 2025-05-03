@@ -28,14 +28,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         String token = request.getHeader("Authorization");
         if (token == null || !token.startsWith("Token ")) {
+            System.out.println("Token not received");
             sendErrorResponse(response, "Token not received", HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
         try {
             token = token.substring(6);
             String username = JwtService.extractClaims(token).getSubject();
-            System.out.println(username);
             if (username == null || !JwtService.validateJWT(token)) {
+                System.out.println("Invalid token");
                 sendErrorResponse(response, "Invalid token", HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
