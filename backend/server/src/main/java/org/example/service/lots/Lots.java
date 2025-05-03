@@ -1,8 +1,6 @@
 package org.example.service.lots;
 
-import org.example.base.Cars;
-import org.example.base.CarsRepository;
-import org.example.base.DateDTO;
+import org.example.base.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,9 +23,15 @@ import java.util.Optional;
 public class Lots {
     @Autowired
     CarsRepository x;
+    @Autowired
+    UsersRepository users;
+
     public String addLot(List<MultipartFile> files,Cars data){
         System.out.println("Файлы загружены: " + files.size());
         String uploadDir = "./src/main/resources/static/";
+        data.setBid(data.getStarting_price());
+        data.setHighest_bidder("noname");
+        System.out.println(data.toString());
         try {
             data = x.save(data);
             String uniqueDir = uploadDir +  data.getId() + "/";
@@ -46,15 +50,18 @@ public class Lots {
     }
     public void updateEndDate(DateDTO newDate) {
         Cars lot = x.findById(newDate.getId()).orElseThrow();
-        lot.setEnd(newDate.getDate());
-        x.save(lot);
-    }
-    public void updateStartDate(DateDTO newDate){
-        Cars lot = x.findById(newDate.getId()).orElseThrow();
-        if(lot.getEnd().isBefore(newDate.getDate())){
-            lot.setStart(newDate.getDate());
+
+        if (lot.getStart() != null && lot.getStart().isBefore(newDate.getDate()) && !lot.getEnd().equals(newDate.getDate())) {
+            lot.setEnd(newDate.getDate());
+            x.save(lot);
         }
-        x.save(lot);
+    }
+    public void updateStartDate(DateDTO newDate) {
+        Cars lot = x.findById(newDate.getId()).orElseThrow();
+        if (lot.getEnd() != null && lot.getEnd().isAfter(newDate.getDate()) && !lot.getStart().equals(newDate.getDate())) {
+            lot.setStart(newDate.getDate());
+            x.save(lot);
+        }
     }
 
     public ResponseEntity<byte[]> getImage(Integer id,String name){
@@ -108,9 +115,32 @@ public class Lots {
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new byte[0]);
         }
-
-
     }
-
-
+    public User user(Integer id) {
+        Cars lot = x.findById(id).orElseThrow();
+        if(lot == null){
+            return null;
+        }
+        User us = users.findByName(lot.getHighest_bidder());
+        if(us == null){
+            return null;
+        }
+        us.setPassword("");
+        return us;
+    }
+    public String bid(Integer id, Integer bid,String user) {
+        Cars lot = x.findById(id).orElseThrow();
+        System.out.println(user);
+        if(lot == null){
+            return "Лот не найден";
+        }
+        if (bid > lot.getBid() && !lot.getHighest_bidder().equals(user)){
+            lot.setHighest_bidder(user);
+            lot.setBid(bid);
+            x.save(lot);
+            return "Лот обновлён";
+        }
+        return "Лот не обновлён";
+    }
 }
+

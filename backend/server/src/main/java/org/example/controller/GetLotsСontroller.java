@@ -3,15 +3,31 @@ package org.example.controller;
 import org.example.base.Cars;
 import org.example.base.CarsRepository;
 import org.example.base.DateDTO;
+import org.example.base.User;
 import org.example.service.lots.Lots;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
+@RestController
+@RequestMapping("/private")
+class LotsController{
+    @Autowired
+    Lots lots;
+    @PostMapping("/bid/{id}/{bid}/{name}")
+    public String Bid(@PathVariable Integer id,@PathVariable Integer bid,@PathVariable String name){
+        return lots.bid(id,bid,name);
+    }
+
+}
 @RestController
 @RequestMapping("/public")
 public class GetLotsСontroller {
@@ -42,6 +58,18 @@ public class GetLotsСontroller {
     public Cars  getLot(@PathVariable Integer id){
         return lots.getLot(id);
     }
+    @GetMapping("/lot/{id}/stream")
+    public SseEmitter streamEvents(@PathVariable Integer id) {
+        SseEmitter emitter = new SseEmitter();
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            try {
+                emitter.send(lots.getLot(id));
+            } catch (IOException e) {
+                emitter.complete();
+            }
+        }, 0, 3, TimeUnit.SECONDS);
+        return emitter;
+    }
 }
 @RestController
 @RequestMapping("/admin")
@@ -53,6 +81,10 @@ class AddLotsСontroller {
                              @ModelAttribute Cars data) {
        return lots.addLot(files,data);
     }
+    @GetMapping("/user/{id}")
+    public User userNumber(@PathVariable Integer id) {
+        return lots.user(id);
+    }
     @PostMapping("/dellot")
     public String del(@RequestBody Integer id) {
         lots.delLot(id);
@@ -60,7 +92,6 @@ class AddLotsСontroller {
     }
     @PostMapping("/start")
     public String updateStart(@RequestBody DateDTO newDate) {
-        System.out.println(newDate.toString());
         lots.updateStartDate(newDate);
         return "Лот"+newDate.getId()+ "обновлён";
     }
@@ -69,8 +100,6 @@ class AddLotsСontroller {
         lots.updateEndDate(newDate);
         return "Лот"+newDate.getId()+ "обновлён";
     }
-
-
 }
 
 

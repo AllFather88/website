@@ -20,9 +20,10 @@ public class JwtService {
     static private String secret = Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes());
     static public String getNewToken(String token){
         String response;
+        System.out.println(token);
         if(JwtService.validateJWT(token)){
             Claims cl = JwtService.extractClaims(token);
-            response = JwtService.generateJWT(cl.get("name",String.class),cl.get("role",String.class));
+            response = JwtService.generateJWT(cl.getSubject(),cl.get("role",String.class));
         }
         else{
             response = "session is over";
@@ -50,6 +51,7 @@ public class JwtService {
                     .getPayload();
             return true;
         } catch (Exception e) {
+            System.out.println(e.getMessage());
            return false;
         }
     }
@@ -74,7 +76,8 @@ public class JwtService {
         }
     }
     static public String generateJWT(String name,String role){
-        Date date = Date.from(LocalDateTime.now().plusMinutes(30).atZone(ZoneId.systemDefault()).toInstant());
+    ;
+        Date date = Date.from(LocalDateTime.now().plusSeconds(5).atZone(ZoneId.systemDefault()).toInstant());
         return Jwts.builder()
                 .subject(name)
                 .claim("role", role)

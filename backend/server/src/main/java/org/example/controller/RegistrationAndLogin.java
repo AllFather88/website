@@ -5,6 +5,7 @@ import org.example.base.ReturnUser;
 import org.example.base.UserDto;
 import org.example.service.JWT.JwtDTO;
 import org.example.service.JWT.JwtService;
+import org.example.service.JWT.TokenDTO;
 import org.example.service.authorization.Login;
 import org.example.service.authorization.Registration;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,14 +30,20 @@ class RegistrationAndLogin {
     private ReturnUser Registration(@RequestBody UserDto user){
         return registration.getTokens(user);
     }
-    @GetMapping("newtoken")
-    private ResponseEntity<String> newToken(@RequestBody String refreshToken) {
-        String newToken = JwtService.getNewToken(refreshToken);
+    @PostMapping("/newtoken")
+    private ResponseEntity<TokenDTO> newToken(@RequestBody TokenDTO refreshToken) {
+        String newToken = JwtService.getNewToken(refreshToken.getToken());
+        TokenDTO x = new TokenDTO();
         if ("session is over".equals(newToken)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(newToken);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(x);
         }
-        return ResponseEntity.ok(newToken);
+        System.out.println("новый токен:" + newToken);
+
+        x.setToken(newToken);
+        return ResponseEntity.ok(x);
     }
 
 }
+
+
 
