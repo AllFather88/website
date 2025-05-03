@@ -14,19 +14,22 @@ export default function Main(){
         const AdminMenu = ()=>{
             return(
                 user.role === "admin" && (<><button onClick={()=>setMenu("add")}>Добавить лот</button>
-                <button>Управление правами</button></>)
+               </>)
             )
+            /* <button>Управление правами</button> */
         }
         return(
             user && (<div className={styles.menu}>
                 <AdminMenu/>
-                <button onClick={()=>setMenu("notifications")}>Уведомления</button>
-                <button>Ставки</button>
-                <button onClick={()=>setMenu("cars")}>Лоты</button>
-                <button>Настройки</button>
+                
             </div>)
         )
     }
+    /*<button onClick={()=>setMenu("notifications")}>Уведомления</button>
+                <button>Ставки</button>
+                <button onClick={()=>setMenu("cars")}>Лоты</button>
+                <button>Настройки</button>
+    */
     useEffect(()=>{
         const storedUser = sessionStorage.getItem("user");
         setUser(storedUser ? JSON.parse(storedUser) : null);
@@ -37,8 +40,8 @@ export default function Main(){
        <div className={styles.page}>
        <header className={styles.header}>
         <div className={styles.names}>
-        <div className={styles.name}>XXXXXXXX</div>
-        <div className={styles.username}>{user ?<><button onClick={()=>{sessionStorage.removeItem("user");setUser(null)}}>Кнопка</button>{user.name}</>  : <button onClick={()=>{navigate("/auth")}}>Войти</button>}</div>
+        <div onClick={()=>{navigate(0)}} className={styles.name}>Автоаукцион</div>
+        <div className={styles.username}>{user ?<><button className={styles.exit} onClick={()=>{sessionStorage.removeItem("user");setUser(null)}}>Выйти</button>{user.name}</>  : <button onClick={()=>{navigate("/auth")}}>Войти</button>}</div>
         </div>
        `{user && <Menu/>}
         </header>

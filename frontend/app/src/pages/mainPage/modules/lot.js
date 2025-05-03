@@ -4,17 +4,17 @@ import styles1 from "../main.module.css"
 import { useNavigate } from "react-router-dom";
 import {useParams}  from "react-router-dom";
 import { useEffect } from "react";
+import { useRef } from "react";
 import foto1 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/foto.jpg"
 import foto2 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/x.jpg"
 import foto3 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/main.jpg"
+import { NewToken } from "../../authentication/auth";
 
 export default  function Lot(){
     const {data} = useParams();
     const navigate = useNavigate();
-    const [user,setUser] = useState();
+    const [user,setUser] = useState({});
     const [lot,setLot] = useState({});
-    const [imageSrc, setImageSrc] = useState([]);
-    const [index,setIndex] = useState(0);
     const [names,setNames] = useState([]);
     useEffect(() => {
         fetch(`http://localhost:8080/public/lot/${Number(data)}`) 
@@ -26,12 +26,11 @@ export default  function Lot(){
         })
         .then(lotjson => setLot(lotjson))
         .catch(error => console.error("Ошибка", error));
+        const storedUser = sessionStorage.getItem("user");
+        setUser(storedUser ? JSON.parse(storedUser) : null);
+        console.log(JSON.parse(storedUser))
+        getNames();
     }, []);
-    useEffect(()=>{
-            const storedUser = sessionStorage.getItem("user");
-            setUser(storedUser ? JSON.parse(storedUser) : null);
-            console.log(JSON.parse(storedUser))
-    },[])
     const getNames = async () => { 
         const response = await fetch(`http://localhost:8080/public/images/${Number(data)}`);
         let imagenames = [];
@@ -47,29 +46,39 @@ export default  function Lot(){
             alert("Ошибка");
         }
     }
-    useEffect(() => { 
-        getNames();
-         
-      }, []);
-    useEffect(() => {
-        if (!names.length || names[index] === undefined) return; 
-        fetch(`http://localhost:8080/public/image/${Number(data)}/${names[index]}`)
-            .then(response => response.ok ? response.blob() :console.error("Ошибка"))
-            .then(blob => setImageSrc(URL.createObjectURL(blob)))
-            .catch(error => console.error("Ошибка загрузки изображения:", error));
-    },  [names,index]);
-    const AdminMenu = ()=>{
-        useEffect(()=>{
-            fetch(`http://localhost:8080/private/lot/${Number(data)}`) 
-            .then(response => {
-            if (!response.ok) {
-                navigate('/');
+    const [bid,setBid] = useState({})
+    const [highest_bidder,setHighest_bidder] = useState({})
+    useEffect(()=>{
+        Phone()
+    },[bid]);
+    const Phone = async ()=>{
+        if(user && user.role !== "admin"){
+            return
+        }
+        let i =100
+        while(--i){
+            const storedUser = sessionStorage.getItem("user");
+            const user = JSON.parse(storedUser);               
+            try{
+                const response = await   fetch(`http://localhost:8080/admin/user/${Number(data)}`, { 
+                    headers: {
+                        "Authorization": "Token "+ user.tokens.token,  
+                    }
+                });
+                if(response.status === 401 || response.status === 403){
+                    await NewToken(navigate)
+                }
+                else{
+                    const ujson = await response.json()
+                    setHighest_bidder(ujson)
+                    return
+                }
+            }catch(error){
+               console.log(error)
             }
-            return response.json(); 
-        })
-        .then(lotjson => setLot(lotjson))
-        .catch(error => console.error("Ошибка", error));
-        },[])
+        }
+    }
+    const AdminMenu = ()=>{
         const newDate = async (event,type) => {
             event.preventDefault(); 
             const formData = new FormData(event.target);
@@ -79,7 +88,8 @@ export default  function Lot(){
             });
             formObject['id'] = Number(data);
             console.log(JSON.stringify(formObject))
-            while(true){
+            let i = 100;
+            while(--i){
                 const storedUser = sessionStorage.getItem("user");
                 const user = JSON.parse(storedUser);               
                 try{
@@ -92,19 +102,10 @@ export default  function Lot(){
                         }
                     });
                     if(!response.ok){
-                        const token = await  fetch("http://localhost:8080/public/newtoken", { 
-                            method: "GET",
-                            body: user.tokens.token.refreshtoken,
-                        });
-                        if(!token.ok){
-                            sessionStorage.removeItem("user")
-                            navigate("/auth")
-                            return
-                        }
-                        user.tokens.token.token = await token.json()
-                        sessionStorage.setItem("user",JSON.stringify(user))
+                     await NewToken(navigate)
                     }
                     else{
+                        navigate(0);
                         return
                     }
                 }catch(error){
@@ -125,18 +126,8 @@ export default  function Lot(){
                             "Authorization": "Token "+ user.tokens.token,  
                         }
                     });
-                    if(!response.ok){
-                        const token = await fetch("http://localhost:8080/public/newtoken", { 
-                            method: "GET",
-                            body: user.tokens.token.refreshtoken,
-                        });
-                        if(!token.ok){
-                            sessionStorage.removeItem("user")
-                            navigate("/auth")
-                            return
-                        }
-                        user.tokens.token.token = await token.json()
-                        sessionStorage.setItem("user",JSON.stringify(user))
+                    if(response.status === 401 || response.status === 403){
+                        await NewToken(navigate)
                     }
                     else{
                         return
@@ -146,10 +137,11 @@ export default  function Lot(){
                 }
             }
         };
+      
         return(
             <div className={styles.adminmenu}>
                     <form onSubmit={(event)=>{newDate(event,"end")}}>
-                        <input defaultValue={lot.end} required type="datetime-local"  id="endDatetime" name="date"></input>
+                        <input  defaultValue={lot.end} required type="datetime-local"  id="endDatetime" name="date"></input>
                         <button>Сменить дату конца</button>
                     </form>
                     <form onSubmit={(event)=>{newDate(event,"start")}}>
@@ -158,47 +150,144 @@ export default  function Lot(){
                     </form>
                     <button onClick={DelLot}>Удалить лот</button>
                     <div className={styles.bidinf}>
-                    <div>Лидер:</div>
-                    <div></div>
-                    <div>Номер телефона:</div>
+                    <div>Лидер:{highest_bidder.name}</div>
+                    <div>Номер телефона:{highest_bidder.phone_number}</div>
                     </div>
             </div>
         )
     }
-    const AddIndex = ()=>{
-        let s = index
-        setIndex(++s % names.length)
+   
+    const Info = ()=>{
+        const [status,SetStatus] = useState("")
+       function Status(){
+           const currentDate = new Date();
+           const endDate = new Date(lot.end);
+           const startDate = new Date(lot.start)
+           if(endDate < currentDate){
+                SetStatus("Торги окончены")
+                return
+           }
+           if(startDate > currentDate){
+               const startDate = new Date(lot.start);
+               const diff = startDate - currentDate; 
+               const hours = Math.floor(diff / (1000 * 60 * 60));
+               const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+               const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                SetStatus(`До начала торгов: ${hours}ч ${minutes}м ${seconds}с`)
+               return
+           }
+           const diff =  endDate - currentDate; 
+           const hours = Math.floor(diff / (1000 * 60 * 60));
+           const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+           const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+           SetStatus( `До конца торгов: ${hours}ч ${minutes}м ${seconds}с`)            
     }
-    const MinusIndex = ()=>{
-        let s = index
-        if(s-1 < 0){
-            setIndex(names.length - 1)
-            console.log(index)
+        useEffect(()=>{
+            const interval = setInterval(Status, 1000); 
+            return (() => clearInterval(interval))
+        },[]);
+       
+        useEffect(() => {
+            const eventSource = new EventSource(`http://localhost:8080/public/lot/${lot.id}/stream`);
+            eventSource.onmessage = (event) => {
+                const inf = JSON.parse(event.data)
+                if(inf.bid !== bid.bid){
+                    setBid(inf);
+                }
+            };
+            eventSource.onerror = () => {
+                console.error("Ошибка SSE");
+                eventSource.close();
+            };
+    
+            return () => eventSource.close();
+        }, [])
+        const Bid = async (event)=>{
+            event.preventDefault()
+            const bidAmount = event.target.elements.bid.value;
+            let i = 100
+            while(--i){
+                const storedUser = sessionStorage.getItem("user");
+                const user1 = JSON.parse(storedUser);       
+                const response = await fetch(`http://localhost:8080/private/bid/${data}/${bidAmount}/${user.name}`, { 
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Token "+ user1.tokens.token,  
+                    }
+                })
+                if(response.status === 401 || response.status === 403){
+                  await NewToken(navigate)
+                }
+                else{
+                    return
+                }
+            }
         }
-        else{
-            setIndex(--s)
-            console.log(index)
+        return(
+            <>
+            <div className={styles.brand}>Марка: {lot.brand}</div>
+        <div className={styles.model}>Модель: {lot.model}</div>
+        <div className={styles.year}>Год:{lot.year}</div>
+        <div className={styles.description}>Описание:{lot.description}</div>
+        <div className={styles.max}>Текущая ставка: {bid.bid}$</div>
+        <div className={styles.status}>{status}</div>
+        {status.startsWith("До конца торгов") &&  <div className={styles.bid}>
+            <form className={styles.inp} onSubmit={Bid}>
+                <input  name="bid" max="100000000"type='number'></input>
+                <button>Поставить</button>
+            </form>
+        </div>}
+            </>
+        )
+    }
+    function Images(){
+        const [index,setIndex] = useState(0);
+        const [imageSrc, setImageSrc] = useState([]);
+        const AddIndex = ()=>{
+            let s = index
+            setIndex(++s % names.length)
         }
+        const MinusIndex = ()=>{
+            let s = index
+            if(s-1 < 0){
+                setIndex(names.length - 1)
+            }
+            else{
+                setIndex(--s)
+            }
+        }
+        useEffect(() => {
+            if (!names.length || names[index] === undefined) return; 
+            fetch(`http://localhost:8080/public/image/${Number(data)}/${names[index]}`)
+                .then(response => response.ok ? response.blob() :console.error("Ошибка"))
+                .then(blob => setImageSrc(URL.createObjectURL(blob)))
+                .catch(error => console.error("Ошибка загрузки изображения:", error));
+        },  [names,index]);
+        return(<><img src={imageSrc || foto1} alt="Фото"/>
+               <div className={styles.controls}>
+                <button onClick={MinusIndex}>&#x2190;</button>
+                <button onClick={AddIndex}>&#x2192;</button>
+            </div>
+        </>)
     }
     return(
         <>
        <div className={styles1.page}>
        <header className={styles1.header}>
         <div className={styles1.names}>
-            <div className={styles1.name}>NAME</div>
-            <div className={styles1.username}>{user ?<><button onClick={()=>{sessionStorage.removeItem("user");setUser(null)}}>Кнопка</button>{user.name}</>  : <button onClick={()=>{navigate("/auth")}}>Войти</button>}</div>
+            <div className={styles1.name} onClick={()=>{navigate('/')}}>Автоаукцион</div>
+            <div className={styles1.username}>{user ?<><button className={styles1.exit} onClick={()=>{sessionStorage.removeItem("user");setUser(null)}}>Выйти</button>{user.name}</>  : <button onClick={()=>{navigate("/auth")}}>Войти</button>}</div>
         </div>
         </header>
-        <div className={styles1.headersize}></div>
+        <div className={styles.headersize}></div>
         <div className={styles.lot}>
         <div className={styles.images}>
-            <img src={imageSrc || foto1} alt="Фото"/>
-            <div className={styles.controls}>
-                <button onClick={MinusIndex}>&#x2190;</button>
-                <button onClick={AddIndex}>&#x2192;</button>
-            </div>
+          <Images></Images>
         </div>
-        <div className={styles.info}>{data}</div>
+        <div className={styles.info}>
+            <Info/>
+        </div>
         {user && user.role==="admin" &&  <AdminMenu/>}
         </div>
         <footer className={styles1.footer}>
