@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 import {useParams}  from "react-router-dom";
 import { useEffect } from "react";
 import { useRef } from "react";
-import foto1 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/foto.jpg"
 import foto2 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/x.jpg"
+import foto1 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/foto.jpg"
 import foto3 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/main.jpg"
 import { NewToken } from "../../authentication/auth";
 
@@ -16,6 +16,7 @@ export default  function Lot(){
     const [user,setUser] = useState({});
     const [lot,setLot] = useState({});
     const [names,setNames] = useState([]);
+    const [message,setMessege] = useState('')
     useEffect(() => {
         fetch(`http://localhost:8080/public/lot/${Number(data)}`) 
         .then(response => {
@@ -25,32 +26,30 @@ export default  function Lot(){
             return response.json(); 
         })
         .then(lotjson => setLot(lotjson))
-        .catch(error => console.error("Ошибка", error));
+        .catch(error => setMessege(error.message));
         const storedUser = sessionStorage.getItem("user");
         setUser(storedUser ? JSON.parse(storedUser) : null);
         console.log(JSON.parse(storedUser))
         getNames();
     }, []);
     const getNames = async () => { 
-        const response = await fetch(`http://localhost:8080/public/images/${Number(data)}`);
-        let imagenames = [];
-        try {
-            imagenames = await response.json();
-            console.log(imagenames)
-        } catch (e) {
-            return;
-        }
-        if (response.ok) {
-            setNames(imagenames);
-        } else {
-            alert("Ошибка");
+        try{
+            const response = await fetch(`http://localhost:8080/public/images/${Number(data)}`);
+       
+            let imagenames = [];
+                imagenames = await response.json();
+            if (response.ok) {
+                setNames(imagenames);
+            } else {
+                alert("Ошибка");
+            }
+        }catch(error){
+            setMessege(error.message)
+            setTimeout(()=>{navigate('/')},5000)
         }
     }
     const [bid,setBid] = useState({})
     const [highest_bidder,setHighest_bidder] = useState({})
-    useEffect(()=>{
-        Phone()
-    },[bid]);
     const Phone = async ()=>{
         if(user && user.role !== "admin"){
             return
@@ -74,11 +73,15 @@ export default  function Lot(){
                     return
                 }
             }catch(error){
-               console.log(error)
+                setMessege(error.message)
+                setTimeout(()=>{navigate('/')},5000)
             }
         }
     }
     const AdminMenu = ()=>{
+        useEffect(()=>{
+            Phone()
+        },[bid]);
         const newDate = async (event,type) => {
             event.preventDefault(); 
             const formData = new FormData(event.target);
@@ -109,7 +112,8 @@ export default  function Lot(){
                         return
                     }
                 }catch(error){
-                    console.log(error)
+                    setMessege(error.message)
+                    setTimeout(()=>{navigate('/')},5000)
                 }
             }
         };
@@ -125,7 +129,7 @@ export default  function Lot(){
                             "Content-Type": "application/json",
                             "Authorization": "Token "+ user.tokens.token,  
                         }
-                    });
+                    })
                     if(response.status === 401 || response.status === 403){
                         await NewToken(navigate)
                     }
@@ -133,7 +137,8 @@ export default  function Lot(){
                         return
                     }
                 }catch(error){
-                   console.log(error)
+                   setMessege(error.message)
+                   setTimeout(()=>{navigate('/')},5000)
                 }
             }
         };
@@ -156,7 +161,6 @@ export default  function Lot(){
             </div>
         )
     }
-   
     const Info = ()=>{
         const [status,SetStatus] = useState("")
        function Status(){
@@ -188,6 +192,9 @@ export default  function Lot(){
         },[]);
        
         useEffect(() => {
+            if(!status.startsWith('До конца торгов:')){
+                return
+            }
             const eventSource = new EventSource(`http://localhost:8080/public/lot/${lot.id}/stream`);
             eventSource.onmessage = (event) => {
                 const inf = JSON.parse(event.data)
@@ -196,16 +203,15 @@ export default  function Lot(){
                 }
             };
             eventSource.onerror = () => {
-                console.error("Ошибка SSE");
+                setMessege("Ошибка SSE: ставки не будут обновляться в реальном времени");
                 eventSource.close();
             };
-    
             return () => eventSource.close();
-        }, [])
+        }, [status])
         const Bid = async (event)=>{
             event.preventDefault()
             const bidAmount = event.target.elements.bid.value;
-            let i = 100
+            let i = 4
             while(--i){
                 const storedUser = sessionStorage.getItem("user");
                 const user1 = JSON.parse(storedUser);       
@@ -243,7 +249,7 @@ export default  function Lot(){
     }
     function Images(){
         const [index,setIndex] = useState(0);
-        const [imageSrc, setImageSrc] = useState([]);
+        const [imageSrc, setImageSrc] = useState();
         const AddIndex = ()=>{
             let s = index
             setIndex(++s % names.length)
@@ -264,7 +270,7 @@ export default  function Lot(){
                 .then(blob => setImageSrc(URL.createObjectURL(blob)))
                 .catch(error => console.error("Ошибка загрузки изображения:", error));
         },  [names,index]);
-        return(<><img src={imageSrc || foto1} alt="Фото"/>
+        return(<><img src={imageSrc || foto2} alt="Фото"/>
                <div className={styles.controls}>
                 <button onClick={MinusIndex}>&#x2190;</button>
                 <button onClick={AddIndex}>&#x2192;</button>
@@ -290,10 +296,10 @@ export default  function Lot(){
         </div>
         {user && user.role==="admin" &&  <AdminMenu/>}
         </div>
+        {message && <div className={styles.message}>{message}</div>}
         <footer className={styles1.footer}>
         </footer>
        </div>
         </>
     )
 }
-

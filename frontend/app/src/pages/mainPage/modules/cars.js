@@ -17,6 +17,7 @@ export default function Cars(){
         maxprice: 0,
         minprice: 0,
     })
+    const [message,setMessage] = useState('')
     const extractFilters = (data) => {
         return data.reduce((acc, lot) => {
             acc.brands.add(lot.brand);
@@ -28,7 +29,13 @@ export default function Cars(){
         }, { brands: new Set(), models: new Set(), years: new Set(), minprice: null, maxprice: null });
     };
     const request = async () => {
-        const response = await fetch("http://localhost:8080/public/getall", {});
+        let response = {}
+        try{
+            response = await fetch("http://localhost:8080/public/getall");
+        }catch(error){
+            setMessage(error.message)
+            return;
+        }
         let data = await response.json();
         if (response.ok) {
             const promises = data.map(async (lot) => {
@@ -57,19 +64,8 @@ export default function Cars(){
         }
     };
     useEffect(()=>{
-           request();
-        },[])
-      
-
-    const Filter = (event)=>{
-        event.preventDefault(); 
-        const formData = new FormData(event.target);
-        const formObject = {};
-        formData.forEach((value, key) => {
-            formObject[key] = value;
-        });
-        console.log(formObject)
-    }
+        request()
+    },[])
     const [selectedBrand, setSelectedBrand] = useState("");
     const [selectedModel, setSelectedModel] = useState("");
     const [minPrice, setMinPrice] = useState(0);
@@ -127,6 +123,7 @@ export default function Cars(){
         <button onClick={handleFilter}>Принять</button>
     </div>
         <div className={styles.cars}>
+        {message && <div className={styles.message}>{message}</div>}
         {lots.map((lot,index)=>{
            return( <Lot key={lot.id} lot={lot} index={index}/>)
         })}

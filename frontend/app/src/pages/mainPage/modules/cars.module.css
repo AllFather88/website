@@ -11,6 +11,7 @@
     aspect-ratio: 5/6;
     background-color: rgb(255, 255, 255);
     min-height: 350px;
+    min-width: 350px;
     width: 30%;
     margin-bottom: 20px;
     border-radius: 5px;
@@ -104,5 +105,17 @@
 	width: 20%;
 	font-size: 200%;
 }
-
-
+.message{
+    max-width: 400px;
+    text-align: center;
+    border-radius: 5px;
+    margin: auto;
+    margin-top: 20px;
+    width: 85%;
+    padding: 2.5%; 
+    min-height: 30px;
+    border: 2px solid #ff00007a; 
+    background-color: #ff000020;
+    margin-bottom: 5%;
+    word-break: break-all;
+ }
