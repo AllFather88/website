@@ -1,10 +1,8 @@
 package org.example.controller;
 
-import org.example.base.Cars;
-import org.example.base.CarsRepository;
-import org.example.base.DateDTO;
-import org.example.base.User;
+import org.example.base.*;
 import org.example.service.lots.Lots;
+import org.example.service.lots.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,12 +17,26 @@ import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/private")
-class LotsController{
+class LotsAndUserController{
     @Autowired
     Lots lots;
+    @Autowired
+    UserService userserv;
     @PostMapping("/bid/{id}/{bid}/{name}")
     public String Bid(@PathVariable Integer id,@PathVariable Integer bid,@PathVariable String name){
         return lots.bid(id,bid,name);
+    }
+    @PostMapping("/newnumber")
+    public void newNumber(@RequestBody NumberDTO number,@RequestHeader("Authorization") String Token){
+        userserv.newNumber(number,Token);
+    }
+    @PostMapping("/newemail")
+    public void newEmail(@RequestBody EmailDTO email,@RequestHeader("Authorization") String Token){
+        userserv.newEmail(email,Token);
+    }
+    @GetMapping("/im")
+    public User Im(@RequestHeader("Authorization") String Token){
+       return userserv.Im(Token);
     }
 
 }
