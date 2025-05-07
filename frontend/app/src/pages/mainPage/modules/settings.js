@@ -5,10 +5,11 @@ import { Navigate, useNavigate } from "react-router-dom";
 export  const Settings = ()=>{
     const [im,setIM] = useState();
     const navigate = useNavigate()
-     const [message,setMessege] = useState('')
+    const [message,setMessage] = useState('')
     const GetIm = async () => {
         let i = 4
         while(--i){
+           try{
             const storedUser = sessionStorage.getItem("user");
             const user1 = JSON.parse(storedUser);       
             const response = await fetch('http://localhost:8080/private/im', { 
@@ -25,7 +26,10 @@ export  const Settings = ()=>{
                             console.log(ujson)
                             return
                         }
-                   }
+            }catch(error){
+                setMessage(error.message)
+            }
+        }   
     }
     useEffect(()=>{
         GetIm()        
@@ -58,7 +62,7 @@ export  const Settings = ()=>{
                     return
                 }
             }catch(error){
-                setMessege(error.message)
+                setMessage(error.message)
             }
         }
     }
@@ -90,7 +94,7 @@ export  const Settings = ()=>{
                     return
                 }
             }catch(error){
-                setMessege(error.message)
+                setMessage(error.message)
             }
         }
     }

@@ -16,7 +16,7 @@ export default  function Lot(){
     const [user,setUser] = useState({});
     const [lot,setLot] = useState({});
     const [names,setNames] = useState([]);
-    const [message,setMessege] = useState('')
+    const [message,setMessage] = useState('')
     useEffect(() => {
         fetch(`http://localhost:8080/public/lot/${Number(data)}`) 
         .then(response => {
@@ -26,7 +26,7 @@ export default  function Lot(){
             return response.json(); 
         })
         .then(lotjson => setLot(lotjson))
-        .catch(error => setMessege(error.message));
+        .catch(error => setMessage(error.message));
         const storedUser = sessionStorage.getItem("user");
         setUser(storedUser ? JSON.parse(storedUser) : null);
         console.log(JSON.parse(storedUser))
@@ -44,7 +44,7 @@ export default  function Lot(){
                 alert("Ошибка");
             }
         }catch(error){
-            setMessege(error.message)
+            setMessage(error.message)
             setTimeout(()=>{navigate('/')},5000)
         }
     }
@@ -73,7 +73,7 @@ export default  function Lot(){
                     return
                 }
             }catch(error){
-                setMessege(error.message)
+                setMessage(error.message)
                 setTimeout(()=>{navigate('/')},5000)
             }
         }
@@ -112,7 +112,7 @@ export default  function Lot(){
                         return
                     }
                 }catch(error){
-                    setMessege(error.message)
+                    setMessage(error.message)
                     setTimeout(()=>{navigate('/')},5000)
                 }
             }
@@ -137,7 +137,7 @@ export default  function Lot(){
                         return
                     }
                 }catch(error){
-                   setMessege(error.message)
+                   setMessage(error.message)
                    setTimeout(()=>{navigate('/')},5000)
                 }
             }
@@ -203,7 +203,7 @@ export default  function Lot(){
                 }
             };
             eventSource.onerror = () => {
-                setMessege("Ошибка SSE: ставки не будут обновляться в реальном времени");
+                setMessage("Ошибка SSE: ставки не будут обновляться в реальном времени");
                 eventSource.close();
             };
             return () => eventSource.close();
