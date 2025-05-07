@@ -40,7 +40,7 @@
     height: 100px;
 }
 .headersize{
-    height: 150px;
+    height: 190px;
     background-color: rgb(255, 255, 255);
 }
 .cars{
@@ -63,7 +63,6 @@
 .all{
     min-width: 350px;
 }
-
 .inp{
 	border-radius: 5px;
 	border: 1px solid black;
@@ -117,10 +116,10 @@
 }
 .menu > button{
     margin: auto;
-    border-radius: 5%;
+    border: none;
+    border-radius: 5px;
     min-width: 150px;
     width: 15%;
     height: 30px;
     word-wrap: break-word;
-    background-color: rgb(255, 255, 255);
 }

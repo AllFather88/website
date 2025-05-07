@@ -40,7 +40,7 @@
     min-width: 350px;
 }
 .filter{
-    border: 1px solid black;
+    border: 2px solid black;
     display: flex ;
     flex-direction: column;
     margin: auto;
@@ -59,7 +59,7 @@
 .filter > button{
     margin: auto;
     height: 30px;
-    background-color: white;
+    border-radius: 5px;
     margin-bottom: 10px;
     width: 20%;
 }
