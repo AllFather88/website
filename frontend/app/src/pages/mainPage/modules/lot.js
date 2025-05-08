@@ -29,13 +29,11 @@ export default  function Lot(){
         .catch(error => setMessage(error.message));
         const storedUser = sessionStorage.getItem("user");
         setUser(storedUser ? JSON.parse(storedUser) : null);
-        console.log(JSON.parse(storedUser))
         getNames();
     }, []);
     const getNames = async () => { 
         try{
             const response = await fetch(`http://localhost:8080/public/images/${Number(data)}`);
-       
             let imagenames = [];
                 imagenames = await response.json();
             if (response.ok) {
@@ -50,11 +48,16 @@ export default  function Lot(){
     }
     const [bid,setBid] = useState({})
     const [highest_bidder,setHighest_bidder] = useState({})
+    useEffect(()=>{
+        Phone()
+    },[bid,user]);
     const Phone = async ()=>{
         if(user && user.role !== "admin"){
+            console.log(user)
             return
         }
-        let i =100
+        console.log(user)
+        let i = 5
         while(--i){
             const storedUser = sessionStorage.getItem("user");
             const user = JSON.parse(storedUser);               
@@ -65,23 +68,21 @@ export default  function Lot(){
                     }
                 });
                 if(response.status === 401 || response.status === 403){
+                    console.log("dd")
                     await NewToken(navigate)
                 }
                 else{
                     const ujson = await response.json()
-                    setHighest_bidder(ujson)
+                    await setHighest_bidder(ujson)
                     return
                 }
             }catch(error){
                 setMessage(error.message)
-                setTimeout(()=>{navigate('/')},5000)
+            
             }
         }
     }
     const AdminMenu = ()=>{
-        useEffect(()=>{
-            Phone()
-        },[bid]);
         const newDate = async (event,type) => {
             event.preventDefault(); 
             const formData = new FormData(event.target);
@@ -91,7 +92,7 @@ export default  function Lot(){
             });
             formObject['id'] = Number(data);
             console.log(JSON.stringify(formObject))
-            let i = 100;
+            let i = 5;
             while(--i){
                 const storedUser = sessionStorage.getItem("user");
                 const user = JSON.parse(storedUser);               
@@ -118,7 +119,8 @@ export default  function Lot(){
             }
         };
         const DelLot = async () => {
-            while(true){
+            let i = 5
+            while(i--){
                 const storedUser = sessionStorage.getItem("user");
                 const user = JSON.parse(storedUser);               
                 try{
@@ -155,8 +157,8 @@ export default  function Lot(){
                     </form>
                     <button onClick={DelLot}>Удалить лот</button>
                     <div className={styles.bidinf}>
-                    <div>Лидер:{highest_bidder.name}</div>
-                    <div>Номер телефона:{highest_bidder.phone_number}</div>
+                    <div>Лидер: {highest_bidder.name}</div>
+                    <div>Номер телефона: {highest_bidder.phone_number}</div>
                     </div>
             </div>
         )

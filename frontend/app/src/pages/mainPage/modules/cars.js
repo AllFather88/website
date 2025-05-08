@@ -132,7 +132,7 @@ export default function Cars(){
         </>
     )
 }
-const Lot = ({lot,index})=>{
+export const Lot = ({lot,index})=>{
     const navigate = useNavigate();
     const [status,SetStatus] = useState("")
     function Status(){
@@ -159,7 +159,7 @@ const Lot = ({lot,index})=>{
         const hours = Math.floor(diff / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        SetStatus( `До конца торгов: ${hours}ч ${minutes}м ${seconds}с`)            
+        SetStatus( `До конца торгов: ${hours || 0}ч ${minutes || 0}м ${seconds || 0}с`)            
     }
     useEffect(()=>{
         const interval = setInterval(Status, 1000); 
@@ -169,8 +169,8 @@ const Lot = ({lot,index})=>{
        <div id={lot.id} onClick={()=>{navigate(`/lot/${lot.id}`)}} className={styles.car}>
         <div className={styles.img}><img src={lot.url || foto2}/></div>
         <div className={styles.inf}>
-        <div className={styles.brand}>{lot.brand}</div>
-        <div className={styles.model}>Модель:{lot.model}</div>
+        <div className={styles.brand}>Марка: {lot.brand}</div>
+        <div className={styles.model}>Модель: {lot.model}</div>
         <div className={styles.year}>{lot.year} год</div>
         <div className={styles.max}>Текущая ставка: {lot.bid}($)</div>
         <div  className={styles.status} >{status}</div>
