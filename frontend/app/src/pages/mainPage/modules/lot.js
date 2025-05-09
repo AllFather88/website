@@ -13,23 +13,24 @@ import { NewToken } from "../../authentication/auth";
 export default  function Lot(){
     const {data} = useParams();
     const navigate = useNavigate();
-    const [user,setUser] = useState({});
+    const [user,setUser] = useState({saved:[]});
     const [lot,setLot] = useState({});
     const [names,setNames] = useState([]);
     const [message,setMessage] = useState('')
     useEffect(() => {
+        const storedUser = sessionStorage.getItem("user");
+        setUser(storedUser ? JSON.parse(storedUser) : null);
+        getNames();
         fetch(`http://localhost:8080/public/lot/${Number(data)}`) 
         .then(response => {
             if (!response.ok) {
                 navigate('/');
+                return
             }
             return response.json(); 
         })
         .then(lotjson => setLot(lotjson))
-        .catch(error => setMessage(error.message));
-        const storedUser = sessionStorage.getItem("user");
-        setUser(storedUser ? JSON.parse(storedUser) : null);
-        getNames();
+        .catch(error => {});
     }, []);
     const getNames = async () => { 
         try{
@@ -38,12 +39,9 @@ export default  function Lot(){
                 imagenames = await response.json();
             if (response.ok) {
                 setNames(imagenames);
-            } else {
-                alert("Ошибка");
-            }
+            } 
         }catch(error){
-            setMessage(error.message)
-            setTimeout(()=>{navigate('/')},5000)
+            setMessage('Ошибка связи с сервером')
         }
     }
     const [bid,setBid] = useState({})
@@ -68,7 +66,6 @@ export default  function Lot(){
                     }
                 });
                 if(response.status === 401 || response.status === 403){
-                    console.log("dd")
                     await NewToken(navigate)
                 }
                 else{
@@ -77,8 +74,7 @@ export default  function Lot(){
                     return
                 }
             }catch(error){
-                setMessage(error.message)
-            
+                setMessage('Ошибка связи с сервером')
             }
         }
     }
@@ -113,8 +109,8 @@ export default  function Lot(){
                         return
                     }
                 }catch(error){
-                    setMessage(error.message)
-                    setTimeout(()=>{navigate('/')},5000)
+                    setMessage('Ошибка связи с сервером')
+                    navigate('/')
                 }
             }
         };
@@ -139,8 +135,7 @@ export default  function Lot(){
                         return
                     }
                 }catch(error){
-                   setMessage(error.message)
-                   setTimeout(()=>{navigate('/')},5000)
+                   navigate('/')
                 }
             }
         };
@@ -164,7 +159,11 @@ export default  function Lot(){
         )
     }
     const Info = ()=>{
-        const [status,SetStatus] = useState("")
+        const [status,SetStatus] = useState('Торги окончены')
+        useEffect(()=>{
+            const interval = setInterval(Status, 1000); 
+            return (() => clearInterval(interval))
+        },[]);
        function Status(){
            const currentDate = new Date();
            const endDate = new Date(lot.end);
@@ -187,13 +186,8 @@ export default  function Lot(){
            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
            SetStatus( `До конца торгов: ${hours}ч ${minutes}м ${seconds}с`)            
-    }
-        useEffect(()=>{
-            const interval = setInterval(Status, 1000); 
-            return (() => clearInterval(interval))
-        },[]);
-       
-        useEffect(() => {
+    }  
+    useEffect(() => {
             if(!status.startsWith('До конца торгов:')){
                 return
             }
@@ -209,15 +203,19 @@ export default  function Lot(){
                 eventSource.close();
             };
             return () => eventSource.close();
-        }, [status])
+    }, [status])
         const Bid = async (event)=>{
             event.preventDefault()
             const bidAmount = event.target.elements.bid.value;
             let i = 4
             while(--i){
                 const storedUser = sessionStorage.getItem("user");
-                const user1 = JSON.parse(storedUser);       
-                const response = await fetch(`http://localhost:8080/private/bid/${data}/${bidAmount}/${user.name}`, { 
+                const user1 = JSON.parse(storedUser);
+                if(!user || !user.name){
+                    navigate('/auth')
+                    return
+                }       
+                const response = await fetch(`http://localhost:8080/private/bid/${data}/${bidAmount}`, { 
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -236,8 +234,8 @@ export default  function Lot(){
             <>
             <div className={styles.brand}>Марка: {lot.brand}</div>
         <div className={styles.model}>Модель: {lot.model}</div>
-        <div className={styles.year}>Год:{lot.year}</div>
-        <div className={styles.description}>Описание:{lot.description}</div>
+        <div className={styles.year}>Год: {lot.year}</div>
+        <div className={styles.description}>Описание: {lot.description}</div>
         <div className={styles.max}>Текущая ставка: {bid.bid}$</div>
         <div className={styles.status}>{status}</div>
         {status.startsWith("До конца торгов") &&  <div className={styles.bid}>
@@ -246,8 +244,49 @@ export default  function Lot(){
                 <button>Поставить</button>
             </form>
         </div>}
+        {user && <button onClick={Save}>{user.saved.includes(Number(data)) ? '❌ Убрать из сохранённого' : '💾 Сохранить'}</button>}
             </>
         )
+    }
+    const Save = async ()=>{
+        let i = 4
+        while(--i){
+            const storedUser = sessionStorage.getItem("user");
+            const user1 = JSON.parse(storedUser);
+            if(!user || !user.name){
+                navigate('/auth')
+                return
+            }       
+            try{
+                const response = await fetch(`http://localhost:8080/private/save/${data}`, { 
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Token "+ user1.tokens.token,  
+                    }
+                })
+                if(response.status === 401 || response.status === 403){
+                  await NewToken(navigate)
+                }
+                else{
+                    const js = await response.json()
+                    if(js === true){
+                        if(user.saved.includes(Number(data))){
+                            const newArr =  user.saved.filter(num => num !== Number(data));
+                            user.saved = newArr;
+                            setUser({ ...user, saved: newArr });
+                            sessionStorage.setItem('user',JSON.stringify(user))
+                        }else{
+                            user.saved.push( Number(data))
+                            setUser({ ...user});
+                            sessionStorage.setItem('user',JSON.stringify(user))
+                        }
+                    }
+                    return
+                }
+            }catch(error){
+                setMessage('Ошибка связи с сервером')
+            }
+        }
     }
     function Images(){
         const [index,setIndex] = useState(0);

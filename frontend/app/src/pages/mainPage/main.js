@@ -41,7 +41,7 @@ export default function Main(){
     useEffect(()=>{
         const storedUser = sessionStorage.getItem("user");
         setUser(storedUser ? JSON.parse(storedUser) : null);
-        setUser({role:"admin"})
+        console.log(JSON.parse(storedUser))
     },[])
     return(
         <>

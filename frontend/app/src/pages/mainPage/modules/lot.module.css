@@ -15,7 +15,11 @@
     min-width: 300px;
     width: 45%;
     border: 2px solid black;
-    height: 200px;
+    height: min-content;
+} 
+.info > button{
+    border-radius: 3px;
+    background-color: white;
 }
 .inp > button,input{
     height: 30px;
