@@ -9,6 +9,8 @@ import org.example.service.JWT.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class Registration {
     @Autowired
@@ -28,6 +30,7 @@ public class Registration {
             response.setRole("user");
             response.getTokens().setToken(JwtService.generateJWT(a.getName(),a.getRole()));
             response.getTokens().setRefreshtoken(JwtService.generateRefreshJWT(a.getName(),a.getRole()));
+            response.setSaved(List.of(-1));
         }
         else {
             response.getTokens().setToken("error");

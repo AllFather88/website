@@ -1,13 +1,15 @@
 package org.example.service.authorization;
 
 import org.example.base.ReturnUser;
-import org.example.base.User;
 import org.example.base.UserDto;
 import org.example.base.UsersRepository;
 import org.example.service.JWT.JwtDTO;
 import org.example.service.JWT.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.example.base.User;
+
+import java.util.List;
 
 @Service
 public class Login {
@@ -22,7 +24,11 @@ public class Login {
             response.getTokens().setRefreshtoken(JwtService.generateRefreshJWT(a.getName(),a.getRole()));
             response.setName(a.getName());
             response.setRole(a.getRole());
-
+            List<Integer> sv = a.getSaved();
+            if(sv == null || sv.isEmpty()){
+                sv= List.of(-1);
+            }
+            response.setSaved(sv);
         }
         else{
             response.getTokens().setToken("error");

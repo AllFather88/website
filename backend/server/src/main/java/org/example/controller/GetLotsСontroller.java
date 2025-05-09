@@ -1,6 +1,8 @@
 package org.example.controller;
 
+import io.jsonwebtoken.Claims;
 import org.example.base.*;
+import org.example.service.JWT.JwtService;
 import org.example.service.lots.Lots;
 import org.example.service.lots.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +24,11 @@ class LotsAndUserController{
     Lots lots;
     @Autowired
     UserService userserv;
-    @PostMapping("/bid/{id}/{bid}/{name}")
-    public String Bid(@PathVariable Integer id,@PathVariable Integer bid,@PathVariable String name){
+    @PostMapping("/bid/{id}/{bid}")
+    public String Bid(@PathVariable Integer id,@PathVariable Integer bid,@RequestHeader("Authorization") String token){
+        token = token.substring(6);
+        Claims cl = JwtService.extractClaims(token);
+        String name = cl.getSubject();
         return lots.bid(id,bid,name);
     }
     @PostMapping("/newnumber")
@@ -37,6 +42,10 @@ class LotsAndUserController{
     @GetMapping("/im")
     public User Im(@RequestHeader("Authorization") String Token){
        return userserv.Im(Token);
+    }
+    @PostMapping("/save/{id}")
+    public boolean Save(@PathVariable Integer id,@RequestHeader("Authorization") String Token){
+       return userserv.save(id,Token);
     }
 
 }
@@ -105,12 +114,12 @@ class AddLotsСontroller {
     @PostMapping("/start")
     public String updateStart(@RequestBody DateDTO newDate) {
         lots.updateStartDate(newDate);
-        return "Лот"+newDate.getId()+ "обновлён";
+        return "Лот "+newDate.getId()+ " обновлён";
     }
     @PostMapping("/end")
     public String updateEnd(@RequestBody DateDTO newDate) {
         lots.updateEndDate(newDate);
-        return "Лот"+newDate.getId()+ "обновлён";
+        return "Лот "+newDate.getId()+ " обновлён";
     }
 }
 

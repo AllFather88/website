@@ -77,7 +77,7 @@ public class JwtService {
     }
     static public String generateJWT(String name,String role){
     ;
-        Date date = Date.from(LocalDateTime.now().plusSeconds(5).atZone(ZoneId.systemDefault()).toInstant());
+        Date date = Date.from(LocalDateTime.now().plusMinutes(1).atZone(ZoneId.systemDefault()).toInstant());
         return Jwts.builder()
                 .subject(name)
                 .claim("role", role)

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.util.List;
+
 @Data
 @Entity
 @Table(name = "users")
@@ -24,6 +26,8 @@ public class User {
     private String role;
     @Column(name = "email")
     private String email;
+    @Column(name = "saved")
+    private List<Integer> saved;
     public User(){}
     public User(String name, String password, String role) {
         this.name = name;
