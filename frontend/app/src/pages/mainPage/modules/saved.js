@@ -3,6 +3,8 @@ import styles from "./cars.module.css"
 import { NewToken } from "../../authentication/auth";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Lot } from "./cars";
+import { useContext } from "react";
+import { userContext } from "../../../App";
 
 const Saved = ()=>{
     const navigate = useNavigate() 
@@ -12,11 +14,10 @@ const Saved = ()=>{
         {},
     ])
     const [message,setMessage] = useState()
+    const [user,setUser] = useContext(userContext);
     const Request = async ()=>{
         let i = 5;
-        while(--i){
-            const storedUser = sessionStorage.getItem("user");
-            const user = JSON.parse(storedUser);               
+        while(--i){           
             try{
                 const response = await fetch('http://localhost:8080/private/saved', { 
                     headers: {
@@ -25,7 +26,7 @@ const Saved = ()=>{
                     }
                 });
                 if(!response.ok){
-                    await NewToken(navigate)
+                    await NewToken(navigate,user,setUser)
                 }
                 else{
                     const lt = await response.json()

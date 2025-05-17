@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import {userContext} from 'C:/Users/user/Desktop/website/website/frontend/app/src/App.js'
 import styles from "./main.module.css"
 import "../test.css"
 import { useNavigate } from "react-router-dom";
@@ -10,7 +11,7 @@ import Saved from "./modules/saved.js";
 
 export default function Main(){
     const [menu,setrefMenu] = useState("cars");
-    const [user,setUser] = useState();
+    const [user,setUser] = useContext(userContext);
     const navigate = useNavigate();
     const setMenu = (mode)=>{
         sessionStorage.setItem('mode',mode || 'cars')
@@ -19,6 +20,7 @@ export default function Main(){
     useEffect(()=>{
         const mode = sessionStorage.getItem('mode')
         setMenu(mode)
+        console.log(user)
     },[])
     const Menu = ()=>{
         const AdminMenu = ()=>{
@@ -33,16 +35,11 @@ export default function Main(){
             user && (<div className={styles.menu}>
                 <AdminMenu/>
                 <button style={{ backgroundColor: menu === "cars" ? "orange" : "white" }} onClick={()=>setMenu("cars")}>Лоты</button>
-                <button style={{ backgroundColor: menu === "saved" ? "orange" : "white" }} onClick={()=>setMenu("saved")}>Действующие ставки</button>
+                <button style={{ backgroundColor: menu === "saved" ? "orange" : "white" }} onClick={()=>setMenu("saved")}>Сохранённые лоты</button>
                 <button onClick={()=>setMenu("settings")} style={{ backgroundColor: menu === "settings" ? "orange" : "white" }}>Настройки</button>
             </div>)
         )
     }
-    useEffect(()=>{
-        const storedUser = sessionStorage.getItem("user");
-        setUser(storedUser ? JSON.parse(storedUser) : null);
-        console.log(JSON.parse(storedUser))
-    },[])
     return(
         <>
        <div className={styles.page}>

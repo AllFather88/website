@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import styles from "./settings.module.css"
 import { NewToken } from "../../authentication/auth";
 import { Navigate, useNavigate } from "react-router-dom";
+import { userContext } from "../../../App"; 
 export  const Settings = ()=>{
     const [im,setIM] = useState();
+    const [user,setUser] = useContext(userContext)
     const navigate = useNavigate()
     const [message,setMessage] = useState('')
     const GetIm = async () => {
         let i = 4
         while(--i){
            try{
-            const storedUser = sessionStorage.getItem("user");
-            const user1 = JSON.parse(storedUser);       
             const response = await fetch('http://localhost:8080/private/im', { 
                            headers: {
-                               "Authorization": "Token "+ user1.tokens.token,  
+                               "Authorization": "Token "+ user.tokens.token,  
                            }
                        })
                        if(response.status === 401 || response.status === 403){
-                         await NewToken(navigate)
+                         await NewToken(navigate,user,setUser)
                        }
                        else{
                             const ujson = await response.json()
@@ -42,9 +42,7 @@ export  const Settings = ()=>{
             formObject[key] = value;
         });
         let i = 10;
-        while(--i){
-            const storedUser = sessionStorage.getItem("user");
-            const user = JSON.parse(storedUser);               
+        while(--i){               
             try{
                 const response = await fetch('http://localhost:8080/private/newemail', { 
                     method: "POST",
@@ -55,7 +53,7 @@ export  const Settings = ()=>{
                     }
                 });
                 if(!response.ok){
-                 await NewToken(navigate)
+                 await NewToken(navigate,user,setUser)
                 }
                 else{
                     navigate(0)
@@ -74,9 +72,7 @@ export  const Settings = ()=>{
             formObject[key] = value;
         });
         let i = 10;
-        while(--i){
-            const storedUser = sessionStorage.getItem("user");
-            const user = JSON.parse(storedUser);               
+        while(--i){      
             try{
                 const response = await fetch('http://localhost:8080/private/newnumber', { 
                     method: "POST",
@@ -87,7 +83,7 @@ export  const Settings = ()=>{
                     }
                 });
                 if(!response.ok){
-                 await NewToken(navigate)
+                 await NewToken(navigate,user,setUser)
                 }
                 else{
                     navigate(0)

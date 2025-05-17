@@ -3,7 +3,10 @@ import styles from './auth.module.css'
 import { useNavigate } from "react-router-dom";
 import "../general.css"
 import { Navigate } from "react-router-dom";
+import { useContext } from "react";
+import { userContext } from "../../App";
 export default  function Auth(){
+    const [user,setUser] = useContext(userContext)
     const [message,setMessage] = useState("");
     const [type,setType] = useState(true)
 	const navigate = useNavigate();
@@ -29,6 +32,7 @@ export default  function Auth(){
                }
                else{
                     sessionStorage.setItem("user",JSON.stringify(data))
+                    setUser({...data})
                     navigate("/");
                }
             } else {
@@ -54,22 +58,22 @@ export default  function Auth(){
         </>
     )
 }
-export const NewToken = async (navigate)=>{
-    const storedUser = sessionStorage.getItem("user");
-    const user1 = JSON.parse(storedUser);     
+export const NewToken = async (navigate,user,setUser)=>{
     const tokenResponse = await fetch("http://localhost:8080/public/newtoken", { 
         method: "POST",
         headers: { 
             "Content-Type": "application/json" 
         },
-        body: JSON.stringify({ token: user1.tokens.refreshtoken }) 
+        body: JSON.stringify({ token: user.tokens.refreshtoken }) 
     });
     if(!tokenResponse.ok){
         sessionStorage.removeItem("user")
+        setUser({})
         navigate("/auth")
         return
     }
     const tc = await tokenResponse.json()
-    user1.tokens.token = tc.token
-    sessionStorage.setItem("user",JSON.stringify(user1))
+    user.tokens.token = tc.token
+    setUser({ ...user})
+    sessionStorage.setItem("user",JSON.stringify(user))
 }

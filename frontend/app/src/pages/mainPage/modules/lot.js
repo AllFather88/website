@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useContext } from "react";
 import styles from "./lot.module.css"
 import styles1 from "../main.module.css"
 import { useNavigate } from "react-router-dom";
@@ -9,28 +9,27 @@ import foto2 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/
 import foto1 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/foto.jpg"
 import foto3 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/main.jpg"
 import { NewToken } from "../../authentication/auth";
+import { userContext } from "../../../App";
 
 export default  function Lot(){
     const {data} = useParams();
     const navigate = useNavigate();
-    const [user,setUser] = useState({saved:[]});
+    const [user,setUser] = useContext(userContext);
     const [lot,setLot] = useState({});
     const [names,setNames] = useState([]);
     const [message,setMessage] = useState('')
     useEffect(() => {
-        const storedUser = sessionStorage.getItem("user");
-        setUser(storedUser ? JSON.parse(storedUser) : null);
         getNames();
         fetch(`http://localhost:8080/public/lot/${Number(data)}`) 
-        .then(response => {
+        .then( async response => {
             if (!response.ok) {
-                navigate('/');
-                return
+                navigate('/s');
+                return 
             }
-            return response.json(); 
+            const js = await response.json(); 
+            setLot(js)
         })
-        .then(lotjson => setLot(lotjson))
-        .catch(error => {});
+        .catch(error => {console.log(error)});
     }, []);
     const getNames = async () => { 
         try{
@@ -57,8 +56,6 @@ export default  function Lot(){
         console.log(user)
         let i = 5
         while(--i){
-            const storedUser = sessionStorage.getItem("user");
-            const user = JSON.parse(storedUser);               
             try{
                 const response = await   fetch(`http://localhost:8080/admin/user/${Number(data)}`, { 
                     headers: {
@@ -66,7 +63,7 @@ export default  function Lot(){
                     }
                 });
                 if(response.status === 401 || response.status === 403){
-                    await NewToken(navigate)
+                    await NewToken(navigate,user,setUser)
                 }
                 else{
                     const ujson = await response.json()
@@ -89,9 +86,7 @@ export default  function Lot(){
             formObject['id'] = Number(data);
             console.log(JSON.stringify(formObject))
             let i = 5;
-            while(--i){
-                const storedUser = sessionStorage.getItem("user");
-                const user = JSON.parse(storedUser);               
+            while(--i){          
                 try{
                     const response = await fetch("http://localhost:8080/admin/"+type, { 
                         method: "POST",
@@ -102,7 +97,7 @@ export default  function Lot(){
                         }
                     });
                     if(!response.ok){
-                     await NewToken(navigate)
+                        await NewToken(navigate,user,setUser)
                     }
                     else{
                         navigate(0);
@@ -117,8 +112,6 @@ export default  function Lot(){
         const DelLot = async () => {
             let i = 5
             while(i--){
-                const storedUser = sessionStorage.getItem("user");
-                const user = JSON.parse(storedUser);               
                 try{
                     const response = await fetch("http://localhost:8080/admin/dellot", { 
                         method: "POST",
@@ -129,9 +122,10 @@ export default  function Lot(){
                         }
                     })
                     if(response.status === 401 || response.status === 403){
-                        await NewToken(navigate)
+                        await NewToken(navigate,user,setUser)
                     }
                     else{
+                        navigate('/')
                         return
                     }
                 }catch(error){
@@ -209,8 +203,6 @@ export default  function Lot(){
             const bidAmount = event.target.elements.bid.value;
             let i = 4
             while(--i){
-                const storedUser = sessionStorage.getItem("user");
-                const user1 = JSON.parse(storedUser);
                 if(!user || !user.name){
                     navigate('/auth')
                     return
@@ -219,11 +211,11 @@ export default  function Lot(){
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": "Token "+ user1.tokens.token,  
+                        "Authorization": "Token "+ user.tokens.token,  
                     }
                 })
                 if(response.status === 401 || response.status === 403){
-                  await NewToken(navigate)
+                  await NewToken(navigate,user,setUser)
                 }
                 else{
                     return
@@ -251,8 +243,6 @@ export default  function Lot(){
     const Save = async ()=>{
         let i = 4
         while(--i){
-            const storedUser = sessionStorage.getItem("user");
-            const user1 = JSON.parse(storedUser);
             if(!user || !user.name){
                 navigate('/auth')
                 return
@@ -261,11 +251,11 @@ export default  function Lot(){
                 const response = await fetch(`http://localhost:8080/private/save/${data}`, { 
                     method: "POST",
                     headers: {
-                        "Authorization": "Token "+ user1.tokens.token,  
+                        "Authorization": "Token "+ user.tokens.token,  
                     }
                 })
                 if(response.status === 401 || response.status === 403){
-                  await NewToken(navigate)
+                  await NewToken(navigate,user,setUser)
                 }
                 else{
                     const js = await response.json()

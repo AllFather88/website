@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import styles from "./add.module.css"
 import { useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { NewToken } from "../../authentication/auth";
+import { userContext } from "../../../App";
 
 export default function Add(){
     const navigate = useNavigate()
+    const [user,setUser] = useContext(userContext)
     const handleSubmit = async (event) => {
         event.preventDefault(); 
         const formData = new FormData(event.target);
@@ -15,18 +17,16 @@ export default function Add(){
         });
         let i = 100
         while(--i){
-            const storedUser = sessionStorage.getItem("user");
-            const user1 = JSON.parse(storedUser);       
             try{
                 const response = await fetch("http://localhost:8080/admin/addlot", { 
                     method: "POST",
                     body: formData,
                     headers: {
-                        "Authorization": "Token "+ user1.tokens.token, 
+                        "Authorization": "Token "+ user.tokens.token, 
                     }
                 });
                 if(!response.ok){
-                  await NewToken(navigate)
+                  await NewToken(navigate,user,setUser)
                 }
                 else{
                     return

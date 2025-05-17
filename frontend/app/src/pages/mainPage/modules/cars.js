@@ -178,9 +178,3 @@ export const Lot = ({lot,index})=>{
     </div>
    )
 }
-const Clean = (id)=>{
-    const element = document.getElementById(id);
-    if(element){
-        element.value = '';
-    }
-}

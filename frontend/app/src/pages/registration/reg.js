@@ -2,9 +2,12 @@ import React, { useState } from "react";
 import styles from './reg.module.css'
 import { useNavigate } from "react-router-dom";
 import "../general.css"
+import { useContext } from "react";
+import { userContext } from "../../App";
 
 export default  function Register(){
     const [message,setMessage] = useState("");
+    const [user,setUser] = useContext(userContext);
     const navigate = useNavigate();
     const handleSubmit = async (event) => {
         event.preventDefault(); 
@@ -33,6 +36,7 @@ export default  function Register(){
            }
            else{
 				sessionStorage.setItem("user",JSON.stringify(data))
+                setUser(data)
 				navigate('/')
            }
         } else {
