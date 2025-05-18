@@ -32,7 +32,7 @@ export default function Main(){
             )
         }
         return(
-            user && (<div className={styles.menu}>
+            user && user.name && (<div className={styles.menu}>
                 <AdminMenu/>
                 <button style={{ backgroundColor: menu === "cars" ? "orange" : "white" }} onClick={()=>setMenu("cars")}>Лоты</button>
                 <button style={{ backgroundColor: menu === "saved" ? "orange" : "white" }} onClick={()=>setMenu("saved")}>Сохранённые лоты</button>
@@ -46,7 +46,7 @@ export default function Main(){
        <header className={styles.header}>
         <div className={styles.names}>
         <div onClick={()=>{navigate(0)}} className={styles.name}>Автоаукцион</div>
-        <div className={styles.username}>{user ?<><button className={styles.exit} onClick={()=>{sessionStorage.removeItem("user");{sessionStorage.removeItem("mode");setMenu('cars');setUser(null)}}}>Выйти</button>{user.name}</>  : <button onClick={()=>{navigate("/auth")}}>Войти</button>}</div>
+        <div className={styles.username}>{user && user.name ?<><button className={styles.exit} onClick={()=>{sessionStorage.removeItem("user");{sessionStorage.removeItem("mode");setMenu('cars');setUser(null)}}}>Выйти</button>{user.name}</>  : <button onClick={()=>{navigate("/auth")}}>Войти</button>}</div>
         </div>
        {user && <Menu/>}
         </header>

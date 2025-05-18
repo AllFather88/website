@@ -19,11 +19,13 @@ export default  function Lot(){
     const [names,setNames] = useState([]);
     const [message,setMessage] = useState('')
     useEffect(() => {
+        console.log(user)
+        setUser(sessionStorage.getItem("user") ? JSON.parse(sessionStorage.getItem("user")) : {saved:[]})
         getNames();
         fetch(`http://localhost:8080/public/lot/${Number(data)}`) 
         .then( async response => {
             if (!response.ok) {
-                navigate('/s');
+                navigate('/notfound');
                 return 
             }
             const js = await response.json(); 
@@ -153,8 +155,10 @@ export default  function Lot(){
         )
     }
     const Info = ()=>{
+        const [copyUser,setCopyUser] = useState(JSON.parse(JSON.stringify(user)))
         const [status,SetStatus] = useState('Торги окончены')
         useEffect(()=>{
+            Status()
             const interval = setInterval(Status, 1000); 
             return (() => clearInterval(interval))
         },[]);
@@ -222,25 +226,7 @@ export default  function Lot(){
                 }
             }
         }
-        return(
-            <>
-            <div className={styles.brand}>Марка: {lot.brand}</div>
-        <div className={styles.model}>Модель: {lot.model}</div>
-        <div className={styles.year}>Год: {lot.year}</div>
-        <div className={styles.description}>Описание: {lot.description}</div>
-        <div className={styles.max}>Текущая ставка: {bid.bid}$</div>
-        <div className={styles.status}>{status}</div>
-        {status.startsWith("До конца торгов") &&  <div className={styles.bid}>
-            <form className={styles.inp} onSubmit={Bid}>
-                <input  name="bid" max="100000000"type='number'></input>
-                <button>Поставить</button>
-            </form>
-        </div>}
-        {user && <button onClick={Save}>{user.saved.includes(Number(data)) ? '❌ Убрать из сохранённого' : '💾 Сохранить'}</button>}
-            </>
-        )
-    }
-    const Save = async ()=>{
+         const Save = async ()=>{
         let i = 4
         while(--i){
             if(!user || !user.name){
@@ -260,15 +246,15 @@ export default  function Lot(){
                 else{
                     const js = await response.json()
                     if(js === true){
-                        if(user.saved.includes(Number(data))){
-                            const newArr =  user.saved.filter(num => num !== Number(data));
-                            user.saved = newArr;
-                            setUser({ ...user, saved: newArr });
-                            sessionStorage.setItem('user',JSON.stringify(user))
+                        if(copyUser.saved.includes(Number(data))){
+                            const newArr =  copyUser.saved.filter(num => num !== Number(data));
+                            copyUser.saved = newArr;
+                            setCopyUser(JSON.parse(JSON.stringify(copyUser)));
+                            sessionStorage.setItem('user',JSON.stringify(copyUser))
                         }else{
-                            user.saved.push( Number(data))
-                            setUser({ ...user});
-                            sessionStorage.setItem('user',JSON.stringify(user))
+                            copyUser.saved.push( Number(data))
+                            setCopyUser(JSON.parse(JSON.stringify(copyUser)));
+                            sessionStorage.setItem('user',JSON.stringify(copyUser))
                         }
                     }
                     return
@@ -278,6 +264,25 @@ export default  function Lot(){
             }
         }
     }
+        return(
+            <>
+            <div className={styles.brand}>Марка: {lot.brand}</div>
+        <div className={styles.model}>Модель: {lot.model}</div>
+        <div className={styles.year}>Год: {lot.year}</div>
+        <div className={styles.description}>Описание: {lot.description}</div>
+        <div className={styles.max}>Текущая ставка: {bid.bid || lot.bid}$</div>
+        <div className={styles.status}>{status}</div>
+        {status.startsWith("До конца торгов") &&  <div className={styles.bid}>
+            <form className={styles.inp} onSubmit={Bid}>
+                <input  name="bid" max="100000000"type='number'></input>
+                <button>Поставить</button>
+            </form>
+        </div>}
+        {user && user.name && <button onClick={Save}>{copyUser.saved.includes(Number(data)) ? '❌ Убрать из сохранённого' : '💾 Сохранить'}</button>}
+            </>
+        )
+    }
+   
     function Images(){
         const [index,setIndex] = useState(0);
         const [imageSrc, setImageSrc] = useState();

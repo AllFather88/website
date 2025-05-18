@@ -127,6 +127,13 @@ export default function Cars(){
         {lots.map((lot,index)=>{
            return( <Lot key={lot.id} lot={lot} index={index}/>)
         })}
+
+        <div className={styles.wrapper}>
+             <div className={styles.controls}>
+                <button>&#x2190;</button>
+                <button >&#x2192;</button>
+            </div>
+        </div>
         </div>
         </div>
         </>

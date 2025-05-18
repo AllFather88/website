@@ -16,7 +16,7 @@ export const userContext = createContext([])
 
 export const App = () =>{ 
 	
-	const [user,setUser ] = useState(sessionStorage.getItem("user") ? JSON.parse(sessionStorage.getItem("user")) : {});
+	const [user,setUser ] = useState(sessionStorage.getItem("user") ? JSON.parse(sessionStorage.getItem("user")) : {saved:[]});
 	return(
   	<BrowserRouter forceRefresh={true}>
 		<main>
