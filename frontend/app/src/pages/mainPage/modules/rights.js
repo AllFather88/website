@@ -63,8 +63,7 @@ export default function RightsManagement(){
                         console.log(JSON.stringify(js))
                         if(js === true){
                             const dl = users.filter((item)=>{ return(item.id !== id)})
-                            console.log(JSON.parse(JSON.stringify(dl)))
-                            setUsers(JSON.parse(JSON.stringify(dl)))
+                            setUsers(dl)
                             Search()
                         }
                         return
@@ -90,14 +89,10 @@ export default function RightsManagement(){
                         const js = await response.json()
                         console.log(JSON.stringify(js))
                         if(js === true){
-                             console.log(JSON.stringify(users))
                             const nw = users.map((item,index)=>{
-                                if(item.id === id){
-                                    item.rights = item.rights === "admin" ? "user" : "admin";
-                                }
+                              return (item.id === id ? { ...item, rights: item.rights === "admin" ? "user" : "admin" } : item)
                             })
-                            console.log(JSON.stringify(nw))
-                            setUsers(JSON.parse(JSON.stringify(nw)))
+                            setUsers(nw)
                             Search()
                         }
                         return
