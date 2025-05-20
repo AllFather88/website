@@ -7,8 +7,7 @@ import org.example.service.JWT.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -16,6 +15,19 @@ public class UserService {
     UsersRepository users;
     @Autowired
     CarsRepository cars;
+    public List<User> users(String token){
+        token = token.substring(6);
+        Claims cl = JwtService.extractClaims(token);
+        String name = cl.getSubject();
+        if(!"user".equals(name)){
+            return null;
+        }
+        List<User> usr = users.findAll();
+        for(User us : usr){
+            us.setPassword("");
+        }
+        return users.findAll();
+    }
     public void newNumber(NumberDTO number,String token){
         token = token.substring(6);
         Claims cl = JwtService.extractClaims(token);
@@ -67,13 +79,73 @@ public class UserService {
             user.setSaved(saved);
         }
         else{
+            Set<Integer> uniqueSet = new HashSet<>(saved);
+            saved = new LinkedList<>(uniqueSet);
+            System.out.println(saved.toString());
             if(saved.contains(id)){
                 saved.remove(id);
             }else {
                 saved.add(id);
             }
+            user.setSaved(saved);
         }
         users.save(user);
         return true;
+    }
+    public List<Cars> saved(String token) {
+        token = token.substring(6);
+        Claims cl = JwtService.extractClaims(token);
+        String name = cl.getSubject();
+        if(name == null){
+            return null;
+        }
+
+        List<Integer> saved = users.findByName(name).getSaved();
+        if(saved == null){
+            return null;
+        }
+        List<Cars> response = new LinkedList<Cars>();
+        for(Integer id : saved){
+            Cars add = cars.findOneById(id);
+            if(add != null) {
+                response.add(cars.findOneById(id));
+            }
+        }
+        return response;
+
+    }
+    public boolean Del(Integer id, String token) {
+        token = token.substring(6);
+        Claims cl = JwtService.extractClaims(token);
+        String name = cl.getSubject();
+        if(!"user".equals(name)){
+            return false;
+        }
+        User user = users.findOneById(id);
+        if(user != null && !user.getName().equals("user")){
+            users.delete(user);
+            return true;
+        }
+        return false;
+    }
+    public boolean change(Integer id, String token) {
+        token = token.substring(6);
+        Claims cl = JwtService.extractClaims(token);
+        String name = cl.getSubject();
+        if(!"user".equals(name)){
+            return false;
+        }
+        User user = users.findOneById(id);
+        if(user != null && !user.getName().equals("user")){
+            if(user.getRole().equals("admin")){
+                user.setRole("user");
+            }
+            else{
+                user.setRole("admin");
+            }
+            users.save(user);
+            return true;
+        }
+        return false;
     }
 }

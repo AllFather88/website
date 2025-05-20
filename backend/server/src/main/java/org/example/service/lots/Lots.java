@@ -1,6 +1,8 @@
 package org.example.service.lots;
 
+import io.jsonwebtoken.Claims;
 import org.example.base.*;
+import org.example.service.JWT.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,7 +68,7 @@ public class Lots {
     }
 
     public ResponseEntity<byte[]> getImage(Integer id,String name){
-        Path path = Paths.get("src/main/resources/static/"+id+"/"+name);
+        Path path = Paths.get("./src/main/resources/static/"+id+"/"+name);
         byte[] imageBytes = null;
         try {
             imageBytes = Files.readAllBytes(path);
@@ -142,5 +145,7 @@ public class Lots {
         }
         return "Лот не обновлён";
     }
+
+
 }
 

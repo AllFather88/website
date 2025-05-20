@@ -47,7 +47,10 @@ class LotsAndUserController{
     public boolean Save(@PathVariable Integer id,@RequestHeader("Authorization") String Token){
        return userserv.save(id,Token);
     }
-
+    @GetMapping("/saved")
+    public List<Cars> saved(@RequestHeader("Authorization") String token){
+        return userserv.saved(token);
+    }
 }
 @RestController
 @RequestMapping("/public")
@@ -97,6 +100,8 @@ public class GetLotsСontroller {
 class AddLotsСontroller {
     @Autowired
     Lots lots;
+    @Autowired
+    UserService userserv;
     @PostMapping("/addlot")
     public String add(@RequestParam("file") List<MultipartFile> files,
                              @ModelAttribute Cars data) {
@@ -120,6 +125,18 @@ class AddLotsСontroller {
     public String updateEnd(@RequestBody DateDTO newDate) {
         lots.updateEndDate(newDate);
         return "Лот "+newDate.getId()+ " обновлён";
+    }
+    @GetMapping("/users")
+    public List<User> users(@RequestHeader("Authorization") String token){
+        return userserv.users(token);
+    }
+    @PostMapping("/change/{id}")
+    public boolean change(@PathVariable Integer id,@RequestHeader("Authorization") String token){
+        return userserv.change(id,token);
+    }
+    @PostMapping("/deluser/{id}")
+    public boolean deluser(@PathVariable Integer id,@RequestHeader("Authorization") String token){
+        return userserv.Del(id,token);
     }
 }
 

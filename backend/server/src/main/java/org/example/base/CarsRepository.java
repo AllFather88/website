@@ -7,5 +7,5 @@ import java.util.List;
 
 @Repository
 public interface CarsRepository extends JpaRepository<Cars,Integer> {
-
+    Cars findOneById(Integer x);
 }
