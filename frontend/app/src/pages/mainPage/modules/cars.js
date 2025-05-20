@@ -146,9 +146,6 @@ export const Lot = ({lot,index})=>{
         const currentDate = new Date();
         const endDate = new Date(lot.end);
         const startDate = new Date(lot.start)
-        console.log("endDate:", lot.end);
-        console.log("startDate:", lot.start);
-        console.log("currentDate:", currentDate);
         if(endDate < currentDate){
             SetStatus("Торги окончены")
             return

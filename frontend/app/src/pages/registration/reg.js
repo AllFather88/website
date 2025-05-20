@@ -30,9 +30,10 @@ export default  function Register(){
             body: JSON.stringify(userData),
         });
         const data = await response.json();
+        console.log(JSON.stringify(data))
         if (response.ok) {
-           if(data.token === "error"){
-                setMessage(data.tokens.refreshToken);
+           if(data.tokens.token === "error"){
+                setMessage(data.tokens.refreshtoken);
            }
            else{
 				sessionStorage.setItem("user",JSON.stringify(data))

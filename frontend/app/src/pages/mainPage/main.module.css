@@ -35,6 +35,7 @@
 }
 .exit{
     margin-right: 10px;
+    margin-left: 10px;
 }
 .footer{
     height: 100px;
@@ -111,8 +112,10 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    width: 80%;
-    padding-bottom: 20px;
+    width: 100%;
+    max-width: 1000px;
+    padding-bottom: 5px;
+    gap: 3px;
 }
 .menu > button{
     margin: auto;

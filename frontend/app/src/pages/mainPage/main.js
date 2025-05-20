@@ -3,7 +3,7 @@ import {userContext} from 'C:/Users/user/Desktop/website/website/frontend/app/sr
 import styles from "./main.module.css"
 import "../test.css"
 import { useNavigate } from "react-router-dom";
-import Notifications from "./modules/notifications.js";
+import RightsManagement from "./modules/rights.js";
 import Cars from "./modules/cars.js";
 import Add from "./modules/add.js";
 import Settings from "./modules/settings.js";
@@ -27,7 +27,7 @@ export default function Main(){
             return(
                 user.role === "admin" && (<>
                 <button onClick={()=>setMenu("add")} style={{ backgroundColor: menu === "add" ? "orange" : "white" }}>Добавить лот</button>
-                <button>Управление правами</button> 
+                {user.name === 'user' && <button style={{ backgroundColor: menu === "rights" ? "orange" : "white" }} onClick={()=>setMenu("rights")}>Управление правами</button> }
                </>)
             )
         }
@@ -46,7 +46,7 @@ export default function Main(){
        <header className={styles.header}>
         <div className={styles.names}>
         <div onClick={()=>{navigate(0)}} className={styles.name}>Автоаукцион</div>
-        <div className={styles.username}>{user && user.name ?<><button className={styles.exit} onClick={()=>{sessionStorage.removeItem("user");{sessionStorage.removeItem("mode");setMenu('cars');setUser(null)}}}>Выйти</button>{user.name}</>  : <button onClick={()=>{navigate("/auth")}}>Войти</button>}</div>
+        <div className={styles.username}>{user && user.name ?<>{user.name}<button className={styles.exit} onClick={()=>{sessionStorage.removeItem("user");{sessionStorage.removeItem("mode");setMenu('cars');setUser(null)}}}>Выйти</button></>  : <button onClick={()=>{navigate("/auth")}}>Войти</button>}</div>
         </div>
        {user && <Menu/>}
         </header>
@@ -55,6 +55,7 @@ export default function Main(){
         {menu === "add" &&  <Add/>}
         {menu === "settings" &&  <Settings/>}
         {menu === "saved" &&  <Saved/>}
+        {menu === "rights" &&  <RightsManagement/>}
         <footer className={styles.footer}>
         </footer>
        </div>

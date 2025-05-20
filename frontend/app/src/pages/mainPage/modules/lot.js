@@ -155,6 +155,7 @@ export default  function Lot(){
         )
     }
     const Info = ()=>{
+        const [copyBid,setCopyBid]=useState(JSON.parse(JSON.stringify(bid)))
         const [copyUser,setCopyUser] = useState(JSON.parse(JSON.stringify(user)))
         const [status,SetStatus] = useState('Торги окончены')
         useEffect(()=>{
@@ -189,11 +190,13 @@ export default  function Lot(){
             if(!status.startsWith('До конца торгов:')){
                 return
             }
+            if(!lot.id){ return }
             const eventSource = new EventSource(`http://localhost:8080/public/lot/${lot.id}/stream`);
             eventSource.onmessage = (event) => {
                 const inf = JSON.parse(event.data)
                 if(inf.bid !== bid.bid){
                     setBid(inf);
+                    setCopyBid(inf)
                 }
             };
             eventSource.onerror = () => {
@@ -226,7 +229,7 @@ export default  function Lot(){
                 }
             }
         }
-         const Save = async ()=>{
+        const Save = async ()=>{
         let i = 4
         while(--i){
             if(!user || !user.name){
@@ -270,7 +273,7 @@ export default  function Lot(){
         <div className={styles.model}>Модель: {lot.model}</div>
         <div className={styles.year}>Год: {lot.year}</div>
         <div className={styles.description}>Описание: {lot.description}</div>
-        <div className={styles.max}>Текущая ставка: {bid.bid || lot.bid}$</div>
+        <div className={styles.max}>Текущая ставка: {copyBid.bid}$</div>
         <div className={styles.status}>{status}</div>
         {status.startsWith("До конца торгов") &&  <div className={styles.bid}>
             <form className={styles.inp} onSubmit={Bid}>
@@ -319,7 +322,7 @@ export default  function Lot(){
        <header className={styles1.header}>
         <div className={styles1.names}>
             <div className={styles1.name} onClick={()=>{navigate('/')}}>Автоаукцион</div>
-            <div className={styles1.username}>{user ?<><button className={styles1.exit} onClick={()=>{sessionStorage.removeItem("user");setUser(null)}}>Выйти</button>{user.name}</>  : <button onClick={()=>{navigate("/auth")}}>Войти</button>}</div>
+            <div className={styles1.username}>{user && user.name ?<><button className={styles1.exit} onClick={()=>{sessionStorage.removeItem("user");setUser({saved:[]})}}>Выйти</button>{user.name}</>  : <button onClick={()=>{navigate("/auth")}}>Войти</button>}</div>
         </div>
         </header>
         <div className={styles.headersize}></div>
