@@ -19,6 +19,7 @@ export default  function Lot(){
     const [names,setNames] = useState([]);
     const [message,setMessage] = useState('')
     useEffect(() => {
+        sessionStorage.removeItem('ref');
         setUser(sessionStorage.getItem("user") ? JSON.parse(sessionStorage.getItem("user")) : {saved:[]})
         getNames();
         fetch(`http://localhost:8080/public/lot/${Number(data)}`) 
