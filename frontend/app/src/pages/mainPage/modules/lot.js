@@ -19,7 +19,6 @@ export default  function Lot(){
     const [names,setNames] = useState([]);
     const [message,setMessage] = useState('')
     useEffect(() => {
-        console.log(user)
         setUser(sessionStorage.getItem("user") ? JSON.parse(sessionStorage.getItem("user")) : {saved:[]})
         getNames();
         fetch(`http://localhost:8080/public/lot/${Number(data)}`) 
@@ -45,17 +44,10 @@ export default  function Lot(){
             setMessage('Ошибка связи с сервером')
         }
     }
-    const [bid,setBid] = useState({})
-    const [highest_bidder,setHighest_bidder] = useState({})
-    useEffect(()=>{
-        Phone()
-    },[bid,user]);
     const Phone = async ()=>{
         if(user && user.role !== "admin"){
-            console.log(user)
             return
         }
-        console.log(user)
         let i = 5
         while(--i){
             try{
@@ -68,15 +60,24 @@ export default  function Lot(){
                     await NewToken(navigate,user,setUser)
                 }
                 else{
-                    const ujson = await response.json()
-                    await setHighest_bidder(ujson)
-                    return
+                    try{
+                        const ujson = await response.json()
+                        await setHighest_bidder(ujson)
+                        return
+                    }catch(error){
+                        return
+                    }
                 }
             }catch(error){
                 setMessage('Ошибка связи с сервером')
             }
         }
     }
+    const [bid,setBid] = useState({})
+    const [highest_bidder,setHighest_bidder] = useState({})
+    useEffect(()=>{
+        Phone()
+    },[bid]);
     const AdminMenu = ()=>{
         const newDate = async (event,type) => {
             event.preventDefault(); 
@@ -197,6 +198,7 @@ export default  function Lot(){
                 if(inf.bid !== bid.bid){
                     setBid(inf);
                     setCopyBid(inf)
+                    setMessage("");
                 }
             };
             eventSource.onerror = () => {
@@ -204,7 +206,7 @@ export default  function Lot(){
                 eventSource.close();
             };
             return () => eventSource.close();
-    }, [status])
+    }, [status,message])
         const Bid = async (event)=>{
             event.preventDefault()
             const bidAmount = event.target.elements.bid.value;
@@ -273,9 +275,9 @@ export default  function Lot(){
         <div className={styles.model}>Модель: {lot.model}</div>
         <div className={styles.year}>Год: {lot.year}</div>
         <div className={styles.description}>Описание: {lot.description}</div>
-        <div className={styles.max}>Текущая ставка: {copyBid.bid}$</div>
+        <div className={styles.max}>Текущая ставка: {copyBid.bid}${user && user.name && lot.highest_bidder === user.name && "(Ваша ставка)"}</div>
         <div className={styles.status}>{status}</div>
-        {status.startsWith("До конца торгов") &&  <div className={styles.bid}>
+        {status.startsWith("До конца торгов") &&  <div  className={styles.bid}>
             <form className={styles.inp} onSubmit={Bid}>
                 <input  name="bid" max="100000000"type='number'></input>
                 <button>Поставить</button>
@@ -331,7 +333,7 @@ export default  function Lot(){
           <Images></Images>
         </div>
         <div className={styles.info}>
-            <Info/>
+            <Info />
         </div>
         {user && user.role==="admin" &&  <AdminMenu/>}
         </div>

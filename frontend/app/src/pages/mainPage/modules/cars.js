@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useEffect } from "react";
 import { Navigate, useNavigate  } from "react-router-dom";
 import styles from "./cars.module.css"
 import foto1 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/q.jpg"
 import foto2 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/x.jpg"
 import foto3 from "C:/Users/user/Desktop/website/website/frontend/app/src/pages/mainPage/modules/main.jpg"
+import { userContext } from "../../../App";
 
 export default function Cars(){
     const x = [foto1,foto2,foto3];
@@ -73,6 +74,7 @@ export default function Cars(){
     const [inSale, setInSale] = useState(false);
     const [over, setOver] = useState(false);
     const [before, setBefore] = useState(false);
+    const [range,setRange] = useState({from: 0, to:12,page:1})
     const handleFilter = ()=>{
         const filtered = flots.filter(lot => {
             const currentDate = new Date();
@@ -89,8 +91,17 @@ export default function Cars(){
                 || (inSale &&  endDate > currentDate && startDate < currentDate)
             )
             );
+            setRange({from: 0, to:12,page:1})
         });
         setLots(filtered)
+    }
+  
+    const changePage = (number)=>{
+        const newRenge = {from: range.from+number, to:range.to+number,page:range.page+(number/12)}
+        if(newRenge.from >= 0 && newRenge.to - 12 < lots.length){
+            setRange(newRenge)
+            window.scrollTo({ top: 400, behavior: "smooth" });
+        }
     }
     return(
         <>
@@ -124,14 +135,15 @@ export default function Cars(){
     </div>
         <div className={styles.cars}>
         {message && <div className={styles.message}>{message}</div>}
-        {lots.map((lot,index)=>{
+        {lots.slice(range.from,range.to).map((lot,index)=>{
            return( <Lot key={lot.id} lot={lot} index={index}/>)
         })}
 
         <div className={styles.wrapper}>
              <div className={styles.controls}>
-                <button>&#x2190;</button>
-                <button >&#x2192;</button>
+                {range.from !=0 &&   <button onClick={()=>changePage(-12)}>&#x2190;</button>}
+                <div>{range.page}</div>
+                {range.to < lots.length &&  <button onClick={()=>changePage(12)}>&#x2192;</button>}
             </div>
         </div>
         </div>
@@ -140,6 +152,7 @@ export default function Cars(){
     )
 }
 export const Lot = ({lot,index})=>{
+     const [user,setUser] = useContext(userContext)
     const navigate = useNavigate();
     const [status,SetStatus] = useState("")
     function Status(){
@@ -176,7 +189,7 @@ export const Lot = ({lot,index})=>{
         <div className={styles.brand}>Марка: {lot.brand}</div>
         <div className={styles.model}>Модель: {lot.model}</div>
         <div className={styles.year}>{lot.year} год</div>
-        <div className={styles.max}>Текущая ставка: {lot.bid}($)</div>
+        <div className={styles.max}>Текущая ставка: {lot.bid}${user && user.name && lot.highest_bidder === user.name && "(Ваша ставка)"}</div>
         <div  className={styles.status} >{status}</div>
         </div>
     </div>

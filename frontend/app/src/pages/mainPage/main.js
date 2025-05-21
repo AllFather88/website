@@ -40,17 +40,23 @@ export default function Main(){
             </div>)
         )
     }
+    const [size,setSize] = useState(0)
+    useEffect(()=>{
+        const element = document.getElementById("head");
+        const rect = element.getBoundingClientRect();
+        setSize(rect.height)
+    },[])
     return(
         <>
        <div className={styles.page}>
-       <header className={styles.header}>
+       <header id="head" className={styles.header}>
         <div className={styles.names}>
         <div onClick={()=>{navigate(0)}} className={styles.name}>Автоаукцион</div>
         <div className={styles.username}>{user && user.name ?<>{user.name}<button className={styles.exit} onClick={()=>{sessionStorage.removeItem("user");{sessionStorage.removeItem("mode");setMenu('cars');setUser(null)}}}>Выйти</button></>  : <button onClick={()=>{navigate("/auth")}}>Войти</button>}</div>
         </div>
        {user && <Menu/>}
         </header>
-        <div className={styles.headersize}></div>
+        <div className={styles.headersize} style={{height: size+10}}></div>
         {menu === "cars" &&  <Cars/>}
         {menu === "add" &&  <Add/>}
         {menu === "settings" &&  <Settings/>}

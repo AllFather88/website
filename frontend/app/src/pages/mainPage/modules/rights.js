@@ -41,9 +41,9 @@ export default function RightsManagement(){
     useEffect(()=>{
         Request()
     },[])
-    let Word = ''
+    const [word,setWord] = useState('')
     const Search = async ()=>{
-        const filtered = await users.filter(user=>user.name.startsWith(Word))
+        const filtered = await users.filter(user=>user.name.startsWith(word))
         setSearchUsers(filtered)
     }
     const DeleteAccount = async (id)=>{
@@ -63,7 +63,7 @@ export default function RightsManagement(){
                         console.log(JSON.stringify(js))
                         if(js === true){
                             const dl = users.filter((item)=>{ return(item.id !== id)})
-                            setUsers(dl)
+                            await setUsers(dl)
                             Search()
                         }
                         return
@@ -82,21 +82,21 @@ export default function RightsManagement(){
                     headers: {
                         "Authorization": "Token "+ user.tokens.token,  
                     }});
-                    if(!response.ok){
+                    if(response.status === 401 || response.status === 403){
                         await NewToken(navigate,user,setUser)
                     }
                     else{
                         const js = await response.json()
-                        console.log(JSON.stringify(js))
                         if(js === true){
-                            const nw = users.map((item,index)=>{
-                              return (item.id === id ? { ...item, rights: item.rights === "admin" ? "user" : "admin" } : item)
+                            const nw = await users.map((item,index)=>{
+                                return (item.id === id ? { ...item, role: item.role === "admin" ? "user" : "admin" } : item)
                             })
-                            setUsers(nw)
+                            await setUsers(JSON.parse(JSON.stringify(nw)))
                             Search()
                         }
                         return
                     }
+                  
             }catch(error){
                 console.log(error.message)
                 return
@@ -105,7 +105,7 @@ export default function RightsManagement(){
     }
     return(
         <div className={styles.page}>
-             <div className={styles.search}><input type="search" onChange={(event)=>{Word = event.target.value;if(Word ===''){Search()}}}></input> <button onClick={Search}>🔍︎</button></div>
+             <div className={styles.search}><input type="search" onChange={(event)=>{ setWord(event.target.value)}}></input> <button onClick={Search}>🔍︎</button></div>
             <div className={styles.field}>
 			{searchusers.map((item,index)=>(
                 <div id={item.id} className={styles.user}>

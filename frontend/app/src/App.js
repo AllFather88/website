@@ -18,7 +18,7 @@ export const App = () =>{
 	
 	const [user,setUser ] = useState(sessionStorage.getItem("user") ? JSON.parse(sessionStorage.getItem("user")) : {saved:[]});
 	return(
-  	<BrowserRouter forceRefresh={true}>
+  	<BrowserRouter >
 		<main>
 			<userContext.Provider value={[user,setUser]}>
 			<Routes>
