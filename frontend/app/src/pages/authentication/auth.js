@@ -33,7 +33,12 @@ export default  function Auth(){
                else{
                     sessionStorage.setItem("user",JSON.stringify(data))
                     setUser({...data})
-                    navigate("/");
+                    const ref  = sessionStorage.getItem("ref")
+                    if(ref){
+                        navigate(ref); 
+                    }else{
+                        navigate("/");
+                    } 
                }
             } else {
                 alert("Ошибка авторизации");

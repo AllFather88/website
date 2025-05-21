@@ -142,7 +142,7 @@ export default function Cars(){
         <div className={styles.wrapper}>
              <div className={styles.controls}>
                 {range.from !=0 &&   <button onClick={()=>changePage(-12)}>&#x2190;</button>}
-                <div>{range.page}</div>
+                {range.to < lots.length && <div>{range.page}</div>}
                 {range.to < lots.length &&  <button onClick={()=>changePage(12)}>&#x2192;</button>}
             </div>
         </div>

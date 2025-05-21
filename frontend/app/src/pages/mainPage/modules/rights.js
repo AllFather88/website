@@ -43,9 +43,12 @@ export default function RightsManagement(){
     },[])
     const [word,setWord] = useState('')
     const Search = async ()=>{
-        const filtered = await users.filter(user=>user.name.startsWith(word))
-        setSearchUsers(filtered)
+        const filtered = users.filter(user=>user.name.startsWith(word))
+        setSearchUsers(JSON.parse(JSON.stringify(filtered)))
     }
+    useEffect(()=>{
+        Search()
+    },[users])
     const DeleteAccount = async (id)=>{
         let i = 10;
         while(--i){               
@@ -63,8 +66,7 @@ export default function RightsManagement(){
                         console.log(JSON.stringify(js))
                         if(js === true){
                             const dl = users.filter((item)=>{ return(item.id !== id)})
-                            await setUsers(dl)
-                            Search()
+                            setUsers(dl)
                         }
                         return
                     }
@@ -88,11 +90,12 @@ export default function RightsManagement(){
                     else{
                         const js = await response.json()
                         if(js === true){
-                            const nw = await users.map((item,index)=>{
+                            console.log(JSON.stringify(users[1]))
+                            const nw = users.map((item,index)=>{
+                                
                                 return (item.id === id ? { ...item, role: item.role === "admin" ? "user" : "admin" } : item)
-                            })
-                            await setUsers(JSON.parse(JSON.stringify(nw)))
-                            Search()
+                            })  
+                            setUsers(nw)
                         }
                         return
                     }
@@ -114,8 +117,8 @@ export default function RightsManagement(){
                     <div  className={styles.number}>Номер: {item.phone_number || "отсутствует"}</div>
                     <div  className={styles.email}>Почта: {item.email || "отсутствует"}</div>
                    {item.name !== 'user' && ( <div className={styles.buttons}>
-                         <button onClick={()=>DeleteAccount(item.id)}>Удалить акаунт</button>
-                        <button onClick={()=>ChangeOfRights(item.id)}>{item.role === 'user' ? 'Дать права админа' : 'Лишить прав админа'}</button>
+                         <button onClick={()=>{DeleteAccount(item.id)}}>Удалить акаунт</button>
+                        <button onClick={()=>{ChangeOfRights(item.id)}}>{item.role === 'user' ? 'Дать права админа' : 'Лишить прав админа'}</button>
                     </div>)}
                 </div>))}
             </div>

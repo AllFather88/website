@@ -213,6 +213,7 @@ export default  function Lot(){
             let i = 4
             while(--i){
                 if(!user || !user.name){
+                    sessionStorage.setItem('ref',window.location.pathname);
                     navigate('/auth')
                     return
                 }       
@@ -235,6 +236,7 @@ export default  function Lot(){
         let i = 4
         while(--i){
             if(!user || !user.name){
+                sessionStorage.setItem('ref',window.location.pathname);
                 navigate('/auth')
                 return
             }       
@@ -324,7 +326,7 @@ export default  function Lot(){
        <header className={styles1.header}>
         <div className={styles1.names}>
             <div className={styles1.name} onClick={()=>{navigate('/')}}>Автоаукцион</div>
-            <div className={styles1.username}>{user && user.name ?<><button className={styles1.exit} onClick={()=>{sessionStorage.removeItem("user");setUser({saved:[]})}}>Выйти</button>{user.name}</>  : <button onClick={()=>{navigate("/auth")}}>Войти</button>}</div>
+            <div className={styles1.username}>{user && user.name ?<><button className={styles1.exit} onClick={()=>{sessionStorage.removeItem("user");setUser({saved:[]})}}>Выйти</button>{user.name}</>  : <button onClick={()=>{ sessionStorage.setItem('ref',window.location.pathname);navigate("/auth")}}>Войти</button>}</div>
         </div>
         </header>
         <div className={styles.headersize}></div>
