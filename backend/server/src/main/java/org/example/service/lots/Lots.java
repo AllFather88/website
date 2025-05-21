@@ -2,6 +2,7 @@ package org.example.service.lots;
 
 import io.jsonwebtoken.Claims;
 import org.example.base.*;
+import org.example.service.EmailService;
 import org.example.service.JWT.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,13 +23,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+
+
 @Service
 public class Lots {
     @Autowired
     CarsRepository x;
     @Autowired
     UsersRepository users;
-
+    @Autowired
+    EmailService email;
     public String addLot(List<MultipartFile> files,Cars data){
         System.out.println("Файлы загружены: " + files.size());
         String uploadDir = "./src/main/resources/static/";
@@ -53,7 +57,6 @@ public class Lots {
     }
     public void updateEndDate(DateDTO newDate) {
         Cars lot = x.findById(newDate.getId()).orElseThrow();
-
         if (lot.getStart() != null && lot.getStart().isBefore(newDate.getDate()) && !lot.getEnd().equals(newDate.getDate())) {
             lot.setEnd(newDate.getDate());
             x.save(lot);
@@ -133,14 +136,15 @@ public class Lots {
     }
     public String bid(Integer id, Integer bid,String user) {
         Cars lot = x.findById(id).orElseThrow();
-        System.out.println(user);
         if(lot == null){
             return "Лот не найден";
         }
         if (bid > lot.getBid() && !lot.getHighest_bidder().equals(user)){
+            User us =  users.findByName(lot.getHighest_bidder());
             lot.setHighest_bidder(user);
             lot.setBid(bid);
             x.save(lot);
+            email.sendEmail(us.getEmail(),"Ваша ставка перебита", "<h2>Вашу ставку на лот  <a href='http://localhost:3000/lot/" + lot.getId() + "'>"+ lot.getBrand()+" "+ lot.getModel()+"</a> перебили ставкой "+bid+"$<h2>");
             return "Лот обновлён";
         }
         return "Лот не обновлён";

@@ -3,6 +3,7 @@ package org.example.service.lots;
 import io.jsonwebtoken.Claims;
 import org.example.base.*;
 import org.example.base.User;
+import org.example.service.EmailService;
 import org.example.service.JWT.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,8 @@ public class UserService {
     UsersRepository users;
     @Autowired
     CarsRepository cars;
+    @Autowired
+    EmailService email;
     public List<User> users(String token){
         token = token.substring(6);
         Claims cl = JwtService.extractClaims(token);
@@ -124,6 +127,7 @@ public class UserService {
         User user = users.findOneById(id);
         if(user != null && !user.getName().equals("user")){
             users.delete(user);
+            email.sendEmail(user.getEmail(),"Ваш аккаунт удален", "Аккаунт "+ user.getName() +" был удалён администратором");
             return true;
         }
         return false;
@@ -139,9 +143,11 @@ public class UserService {
         if(user != null && !user.getName().equals("user")){
             if(user.getRole().equals("admin")){
                 user.setRole("user");
+                email.sendEmail(user.getEmail(),"Вас лишили прав администратора", "Аккаунт "+ user.getName() +" был лишён прав администратора");
             }
             else{
                 user.setRole("admin");
+                email.sendEmail(user.getEmail(),"Вам выдали права администратора", "Аккаунт "+ user.getName() +" получил права администратора");
             }
             users.save(user);
             return true;
