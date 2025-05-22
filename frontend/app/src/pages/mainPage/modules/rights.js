@@ -108,7 +108,7 @@ export default function RightsManagement(){
     }
     return(
         <div className={styles.page}>
-             <div className={styles.search}><input type="search" onChange={(event)=>{ setWord(event.target.value)}}></input> <button onClick={Search}>🔍︎</button></div>
+             <div className={styles.search}><input type="search" onChange={async (event)=>{ setWord(event.target.value)}}></input> <button onClick={Search}>🔍︎</button></div>
             <div className={styles.field}>
 			{searchusers.map((item,index)=>(
                 <div id={item.id} className={styles.user}>

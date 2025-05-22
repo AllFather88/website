@@ -95,7 +95,6 @@ export default function Cars(){
         });
         setLots(filtered)
     }
-  
     const changePage = (number)=>{
         const newRenge = {from: range.from+number, to:range.to+number,page:range.page+(number/12)}
         if(newRenge.from >= 0 && newRenge.to - 12 < lots.length){
@@ -138,11 +137,10 @@ export default function Cars(){
         {lots.slice(range.from,range.to).map((lot,index)=>{
            return( <Lot key={lot.id} lot={lot} index={index}/>)
         })}
-
         <div className={styles.wrapper}>
              <div className={styles.controls}>
                 {range.from !=0 &&   <button onClick={()=>changePage(-12)}>&#x2190;</button>}
-                {range.to < lots.length && <div>{range.page}</div>}
+                {lots.length > 12 && <div>{range.page}</div>}
                 {range.to < lots.length &&  <button onClick={()=>changePage(12)}>&#x2192;</button>}
             </div>
         </div>
