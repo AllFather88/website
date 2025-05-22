@@ -59,7 +59,7 @@ export default  function Register(){
         <form className={styles.form} onSubmit={handleSubmit}>
            <div><input className={styles.login} required  name="name" pattern="[A-Za-z]{3,10}" type="text" title="Логин должен состоять из латинских букв и иметь размер от 3 до 10 символов"  placeholder="login"></input></div>
            <div><input className={styles.number} required  name="phone_number" defaultValue={"+375 "}  title="Введите номер в формате: +375 29 1234567"  type="tel"  placeholder="phone number"></input></div> 
-           <div><input className={styles.password} required  title="Пароль должен содержать минимум 6 символов, хотя бы одну заглавную латинскую букву, одну цифру и один специальный символ (@$!%*?&)" name="password" type="password"  placeholder="password"></input></div> 
+           <div><input className={styles.password} required pattern="^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$"  title="Пароль должен содержать минимум 6 символов, хотя бы одну заглавную латинскую букву, одну цифру и один специальный символ (@$!%*?&)" name="password" type="password"  placeholder="password"></input></div> 
            <div><input className={styles.password} required name="repeatPassword" type="password" placeholder="repeat password"></input></div> 
            <button className={styles.btn}>Зарегистрироваться</button>
         </form>
@@ -69,4 +69,5 @@ export default  function Register(){
         </>
     )
 }
+// pattern="^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$"  
  

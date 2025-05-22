@@ -29,6 +29,7 @@ export default function Add(){
                   await NewToken(navigate,user,setUser)
                 }
                 else{
+                    event.target.reset();
                     return
                 }
             }catch(error){
